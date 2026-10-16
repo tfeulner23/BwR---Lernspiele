@@ -15,9 +15,9 @@ export function createHandler({db,verifyUser,allowedOrigins,now=()=>new Date().t
  const action=input.action;if(typeof action!=='string')throw new Fault('Aktion fehlt.');
  if(action==='health')return reply({ok:true,version:VERSION});
  if(action.startsWith('student.')){
-   const ip=req.headers.get('x-forwarded-for')?.split(',')[0]||'shared',minute=Math.floor(Date.now()/60000),b=bursts.get(ip);if(b&&b.minute===minute&&b.count>=120)throw new Fault('Zu viele Anfragen. Bitte eine Minute warten.',429);bursts.set(ip,{minute,count:b?.minute===minute?b.count+1:1});if(bursts.size>5000)bursts.clear();
+   const ip=req.headers.get('x-forwarded-for')?.split(',')[0]||'shared',minute=Math.floor(Date.now()/60000),b=bursts.get(ip);if(b&&b.minute===minute&&b.count>=3000)throw new Fault('Zu viele Anfragen. Bitte eine Minute warten.',429);bursts.set(ip,{minute,count:b?.minute===minute?b.count+1:1});if(bursts.size>5000)bursts.clear();
    const code=normalizeCode(input.code);if(!/^[0-9a-f]{32}$/.test(code))throw new Fault('Zugangscode nicht erkannt.',401);
-   const codeHash=await hashCode(code),seats=await db.get('abschluss_seats',{code_hash:'eq.'+codeHash,select:'id,class_id,label',limit:'1'});const seat=seats[0];if(!seat)throw new Fault('Zugangscode nicht erkannt.',401);
+   const codeHash=await hashCode(code),codeBucket='code:'+codeHash,cb=bursts.get(codeBucket);if(cb&&cb.minute===minute&&cb.count>=120)throw new Fault('Zu viele Anfragen für diesen Zugang. Bitte eine Minute warten.',429);bursts.set(codeBucket,{minute,count:cb?.minute===minute?cb.count+1:1});const seats=await db.get('abschluss_seats',{code_hash:'eq.'+codeHash,select:'id,class_id,label',limit:'1'});const seat=seats[0];if(!seat)throw new Fault('Zugangscode nicht erkannt.',401);
    const cls=(await db.get('abschluss_classes',{id:'eq.'+seat.class_id,select:'id,title,version',limit:'1'}))[0];if(!cls||cls.version!==VERSION)throw new Fault('Diese Aufgabe ist nicht verfügbar.',404);
    let attempt=(await db.get('abschluss_attempts',{seat_id:'eq.'+seat.id,select:'*',limit:'1'}))[0];if(!attempt)throw new Fault('Bearbeitung noch nicht eingerichtet.',503);
    if(action==='student.open'){

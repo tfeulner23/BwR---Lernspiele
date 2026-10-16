@@ -2,11 +2,11 @@
 
 Digitale Lernzielkontrolle zu Abschlussbuchungen, ausgelegt auf etwa 10–15 Minuten selbstständige Bearbeitung. Keine automatische Zeitbegrenzung, damit eine begonnene Aufgabe als Hausaufgabe fortgesetzt werden kann.
 
-**Vorschau:** https://tfeulner23.github.io/BwR---Lernspiele/abschluss-check/
+**Anwendung:** https://tfeulner23.github.io/BwR---Lernspiele/abschluss-check/
 
 ## Aktueller Stand
 
-Die Proberunde mit Speicherung im eigenen Browser ist nutzbar. Die zentrale Supabase-Anbindung und die Oberfläche für den Lehrerbereich sind vorbereitet. Sie werden erst nach gesonderter Aktivierung freigeschaltet. Solange `config.js` keine Verbindungsdaten enthält, wird keine zentrale Abgabe behauptet und keine Bearbeitung an den Speicherdienst übertragen.
+Die zentrale Supabase-Anbindung ist nach ausdrücklicher Freigabe der Lehrkraft am 16.10.2026 aktiviert. Persönliche Schülercodes und Abgabenübersicht stehen nach Einrichtung des Lehrerzugangs zur Verfügung. Die zusätzliche Proberunde speichert weiterhin nur im eigenen Browser.
 
 ## Aufbau
 
@@ -46,8 +46,8 @@ Je richtigem Feld ein Punkt; insgesamt 43 Punkte (12 / 8 / 23). Ein falsch berec
 ## Speichern
 
 - **Proberunde:** automatische Speicherung auf diesem Gerät im verwendeten Browser; Wiederaufnahme nach Neuladen; herunterladbare JSON-Sicherung und Import. Die Proberunde wird nicht an die Lehrkraft abgegeben.
-- **Nach Aktivierung des Speicherdienstes:** persönliche, zufällig erzeugte Zugangscodes; automatische zentrale Speicherung; Fortsetzen auf einem anderen Gerät; bewusste Abgabe und danach schreibgeschützte Auswertung.
-- Der Lehrerbereich ist nach Aktivierung über `#lehrkraft` erreichbar. Er zeigt die vergebenen Plätze einschließlich noch nicht begonnener Aufgaben, Zwischenstände, Abgaben, Zeitpunkte und Punktzahlen. CSV-Export ist vorbereitet.
+- **Zentraler Arbeitsstand:** persönliche, zufällig erzeugte Zugangscodes; automatische zentrale Speicherung; Fortsetzen auf einem anderen Gerät; bewusste Abgabe und danach schreibgeschützte Auswertung.
+- Der Lehrerbereich ist über `#lehrkraft` erreichbar. Er zeigt die vergebenen Plätze einschließlich noch nicht begonnener Aufgaben, Zwischenstände, Abgaben, Zeitpunkte und Punktzahlen. CSV-Export ist vorbereitet.
 - Namen und E-Mail-Adressen der Schüler werden nicht abgefragt. Die Zuordnung von Platz zu Schüler behält die Lehrkraft außerhalb der Anwendung.
 - Die geheimen Schülercodes werden nur bei ihrer Erstellung angezeigt und müssen von der Lehrkraft gesichert werden. Sie sind persönliche Zugangsdaten.
 
