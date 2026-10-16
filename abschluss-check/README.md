@@ -46,7 +46,7 @@ Je richtigem Feld ein Punkt; insgesamt 43 Punkte (12 / 8 / 23). Ein falsch berec
 ## Speichern
 
 - **Proberunde:** automatische Speicherung auf diesem Gerät im verwendeten Browser; Wiederaufnahme nach Neuladen; herunterladbare JSON-Sicherung und Import. Die Proberunde wird nicht an die Lehrkraft abgegeben.
-- **Zentraler Arbeitsstand:** persönliche, zufällig erzeugte Zugangscodes; automatische zentrale Speicherung; Fortsetzen auf einem anderen Gerät; bewusste Abgabe und danach schreibgeschützte Auswertung.
+- **Zentraler Arbeitsstand:** persönliche, zufällig erzeugte Zugangscodes; automatische zentrale Speicherung; Fortsetzen auf einem anderen Gerät; bewusste Abgabe mit Auswertung und anschließender Überarbeitung. Die letzte Abgabe bleibt bis zur nächsten ausdrücklichen Abgabe bestehen.
 - Der Lehrerbereich ist über `#lehrkraft` erreichbar. Er zeigt die vergebenen Plätze einschließlich noch nicht begonnener Aufgaben, Zwischenstände, Abgaben, Zeitpunkte und Punktzahlen. CSV-Export ist vorbereitet.
 - Namen und E-Mail-Adressen der Schüler werden nicht abgefragt. Die Zuordnung von Platz zu Schüler behält die Lehrkraft außerhalb der Anwendung.
 - Die geheimen Schülercodes werden nur bei ihrer Erstellung angezeigt und müssen von der Lehrkraft gesichert werden. Sie sind persönliche Zugangsdaten.
@@ -57,7 +57,7 @@ Die Supabase-Tabellen haben aktivierte Row Level Security und erlauben keinen di
 
 Der Datenbank-Serviceschlüssel bleibt ausschließlich in der Serverumgebung. `config.js` darf nur die öffentliche Projektadresse, den öffentlichen Publishable-Key und die API-Adresse enthalten. Keine Bearbeitungen, Codes, Passwörter oder privaten Einrichtungsschlüssel in GitHub hochladen.
 
-Serverseitige Bewertung; Änderung einer bereits abgegebenen Bearbeitung wird zurückgewiesen. Revisionsprüfung schützt vor stillem Überschreiben bei paralleler Bearbeitung. Die einfache Ratenbegrenzung im Funktionsprozess ist nur ein zusätzlicher Schutz; Plattformgrenzen sind weiterhin relevant. Im öffentlichen Repository sind Aufgaben und Bewertungslogik einsehbar. Die Anwendung dient der formativen Lernzielkontrolle, nicht einer technisch abgesicherten Prüfung.
+Serverseitige Bewertung; Entwürfe und letzte Abgaben werden getrennt gespeichert. Automatische Speicherung überschreibt weder Punkte noch Antworten der letzten Abgabe. Nur student.submit ersetzt die Abgabe atomar; wiederholte identische Übertragungen sind idempotent. Datenbank-Erweiterung: supabase/resubmission.sql. Revisionsprüfung schützt vor stillem Überschreiben bei paralleler Bearbeitung. Die einfache Ratenbegrenzung im Funktionsprozess ist nur ein zusätzlicher Schutz; Plattformgrenzen sind weiterhin relevant. Im öffentlichen Repository sind Aufgaben und Bewertungslogik einsehbar. Die Anwendung dient der formativen Lernzielkontrolle, nicht einer technisch abgesicherten Prüfung.
 
 ## Fachliche Grundlage
 

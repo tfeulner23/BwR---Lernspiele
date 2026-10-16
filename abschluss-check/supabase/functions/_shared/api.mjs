@@ -35,11 +35,11 @@ export function createHandler({db,verifyUser,issueSession,verifySession,allowedO
      return reply({accessCode:await issueSession(seat.id),seat:{id:seat.id,label:seat.label},classTitle:cls.title,attempt:publicAttempt(attempt)});
    }
    if(!['student.save','student.submit'].includes(action))throw new Fault('Unbekannte Aktion.',404);
-   if(attempt.submitted_at){if(action==='student.submit')return reply({attempt:publicAttempt(attempt)});throw new Fault('Die Aufgabe wurde bereits abgegeben.',409,'submitted');}
+   if(action==='student.submit'&&attempt.submission_revision===input.revision+1&&JSON.stringify(sanitize(input.answers))===JSON.stringify(sanitize(attempt.submitted_answers)))return reply({attempt:publicAttempt(attempt,'result')});
    if(!Number.isSafeInteger(input.revision)||input.revision!==attempt.revision)throw new Fault('Ein anderer Bearbeitungsstand liegt vor. Bitte Serverstand laden.',409,'conflict');
    if(!input.answers||typeof input.answers!=='object'||Array.isArray(input.answers))throw new Fault('Antworten fehlen.');const answers=sanitize(input.answers),stamp=now();
-   const update={answers,revision:attempt.revision+1,started_at:attempt.started_at||stamp,updated_at:stamp};if(action==='student.submit'){update.feedback=grade(answers);update.submitted_at=stamp;}
-   const updated=await db.patch('abschluss_attempts',{seat_id:'eq.'+seat.id,revision:'eq.'+attempt.revision,submitted_at:'is.null'},update);if(!updated[0])throw new Fault('Zwischenzeitlich wurde ein anderer Stand gespeichert. Bitte neu laden.',409,'conflict');return reply({attempt:publicAttempt(updated[0])});
+   const update={answers,revision:attempt.revision+1,started_at:attempt.started_at||stamp,updated_at:stamp};if(action==='student.submit'){update.feedback=grade(answers);update.submitted_at=stamp;update.submitted_answers=answers;update.submission_revision=update.revision;}
+   const updated=await db.patch('abschluss_attempts',{seat_id:'eq.'+seat.id,revision:'eq.'+attempt.revision},update);if(!updated[0])throw new Fault('Zwischenzeitlich wurde ein anderer Stand gespeichert. Bitte neu laden.',409,'conflict');return reply({attempt:publicAttempt(updated[0],action==='student.submit'?'result':'draft')});
  }
  if(action.startsWith('teacher.')){
    const auth=req.headers.get('Authorization')||'';if(!auth.startsWith('Bearer '))throw new Fault('Bitte als Lehrkraft anmelden.',401);const user=await verifyUser(auth.slice(7));if(!user?.id||user.is_anonymous)throw new Fault('Die Anmeldung ist nicht gültig.',401);
@@ -56,7 +56,7 @@ export function createHandler({db,verifyUser,issueSession,verifySession,allowedO
    }
    if(action==='teacher.roster'){
      if(typeof input.classId!=='string'||!UUID.test(input.classId))throw new Fault('Ungültige Lerngruppe.');const cls=(await db.get('abschluss_classes',{id:'eq.'+input.classId,owner_id:'eq.'+user.id,select:'id',limit:'1'}))[0];if(!cls)throw new Fault('Kein Zugriff auf diese Lerngruppe.',403);
-     const seats=await db.get('abschluss_seats',{class_id:'eq.'+cls.id,select:'id,label',order:'label.asc'});const ids=seats.map(s=>s.id);const attempts=ids.length?await db.get('abschluss_attempts',{seat_id:'in.('+ids.join(',')+')',select:'*'}):[];return reply({seats:seats.map(s=>({id:s.id,label:s.label,attempt:publicAttempt(attempts.find(a=>a.seat_id===s.id))}))});
+     const seats=await db.get('abschluss_seats',{class_id:'eq.'+cls.id,select:'id,label',order:'label.asc'});const ids=seats.map(s=>s.id);const attempts=ids.length?await db.get('abschluss_attempts',{seat_id:'in.('+ids.join(',')+')',select:'*'}):[];return reply({seats:seats.map(s=>({id:s.id,label:s.label,attempt:publicAttempt(attempts.find(a=>a.seat_id===s.id),'teacher')}))});
    }
    throw new Fault('Unbekannte Aktion.',404);
  }
@@ -64,4 +64,4 @@ export function createHandler({db,verifyUser,issueSession,verifySession,allowedO
  }catch(e){if(e instanceof Fault)return reply({error:e.message,code:e.code},e.status);console.error('Abschluss-API: Anfrage konnte nicht verarbeitet werden.');return reply({error:'Der Speicherdienst ist vorübergehend nicht verfügbar. Dein lokaler Stand bleibt erhalten.'},503);}
  };
 }
-function publicAttempt(row){if(!row)return null;return {answers:sanitize(row.answers),revision:row.revision,started_at:row.started_at,updated_at:row.updated_at,submitted_at:row.submitted_at,feedback:row.submitted_at?row.feedback:null};}
+function publicAttempt(row,view='draft'){if(!row)return null;const submitted=row.submitted_at?sanitize(row.submitted_answers||row.answers):null;return {answers:view!=='draft'&&submitted?submitted:sanitize(row.answers),revision:row.revision,started_at:row.started_at,updated_at:view==='teacher'&&submitted?row.submitted_at:row.updated_at,submitted_at:row.submitted_at,feedback:view!=='draft'&&row.submitted_at?row.feedback:null,last_submission:row.submitted_at?{at:row.submitted_at,score:row.feedback.score,max:row.feedback.max}:null,draft_pending:!!submitted&&JSON.stringify(sanitize(row.answers))!==JSON.stringify(submitted)};}
