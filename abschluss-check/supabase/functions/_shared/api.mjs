@@ -3,9 +3,11 @@ import {grade} from './grading.mjs';
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 export const normalizeCode=x=>typeof x==='string'?x.replace(/[\s-]/g,'').toLowerCase():'';
 export async function hashCode(code){return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code)))].map(x=>x.toString(16).padStart(2,'0')).join('');}
-const makeCode=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const ALPHABET='23456789abcdefghjkmnpqrstuvwxyz';
+export const makeCode=()=>{const out=[];while(out.length<4){for(const b of crypto.getRandomValues(new Uint8Array(8))){if(b<Math.floor(256/ALPHABET.length)*ALPHABET.length)out.push(ALPHABET[b%ALPHABET.length]);if(out.length===4)break;}}return out.join('');};
+async function unusedCode(db,reserved){for(let i=0;i<50;i++){const code=makeCode(),hash=await hashCode(code);if(!reserved.has(hash)&&!(await db.get('abschluss_seats',{code_hash:'eq.'+hash,select:'id',limit:'1'})).length&&!(await db.get('abschluss_seats',{short_code_hash:'eq.'+hash,select:'id',limit:'1'})).length){reserved.add(hash);return {code,hash};}}throw new Fault('Bitte die Codevergabe erneut versuchen.',503);}
 class Fault extends Error{constructor(message,status=400,code='request'){super(message);this.status=status;this.code=code;}}
-export function createHandler({db,verifyUser,allowedOrigins,now=()=>new Date().toISOString()}){
+export function createHandler({db,verifyUser,issueSession,verifySession,allowedOrigins,now=()=>new Date().toISOString()}){
  const bursts=new Map();
  return async function(req){const origin=req.headers.get('Origin')||'',allowed=allowedOrigins.includes(origin);const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Vary':'Origin',...(allowed?{'Access-Control-Allow-Origin':origin}:{})};const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
  if(req.method==='OPTIONS')return new Response(null,{status:allowed?204:403,headers:{...headers,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'authorization, apikey, content-type','Access-Control-Max-Age':'3600'}});
@@ -16,13 +18,21 @@ export function createHandler({db,verifyUser,allowedOrigins,now=()=>new Date().t
  if(action==='health')return reply({ok:true,version:VERSION});
  if(action.startsWith('student.')){
    const ip=req.headers.get('x-forwarded-for')?.split(',')[0]||'shared',minute=Math.floor(Date.now()/60000),b=bursts.get(ip);if(b&&b.minute===minute&&b.count>=3000)throw new Fault('Zu viele Anfragen. Bitte eine Minute warten.',429);bursts.set(ip,{minute,count:b?.minute===minute?b.count+1:1});if(bursts.size>5000)bursts.clear();
-   const code=normalizeCode(input.code);if(!/^[0-9a-f]{32}$/.test(code))throw new Fault('Zugangscode nicht erkannt.',401);
-   const codeHash=await hashCode(code),codeBucket='code:'+codeHash,cb=bursts.get(codeBucket);if(cb&&cb.minute===minute&&cb.count>=120)throw new Fault('Zu viele Anfragen für diesen Zugang. Bitte eine Minute warten.',429);bursts.set(codeBucket,{minute,count:cb?.minute===minute?cb.count+1:1});const seats=await db.get('abschluss_seats',{code_hash:'eq.'+codeHash,select:'id,class_id,label',limit:'1'});const seat=seats[0];if(!seat)throw new Fault('Zugangscode nicht erkannt.',401);
+   if(action==='student.open'&&db.allowLogin&&!await db.allowLogin(await hashCode('login:'+ip)))throw new Fault('Zu viele Anmeldeversuche. Bitte eine Minute warten.',429);
+   let seat;
+   if(action!=='student.open'){
+     const seatId=await verifySession(input.code);if(!seatId)throw new Fault('Bitte mit deinem Zugangscode erneut anmelden.',401);
+     seat=(await db.get('abschluss_seats',{id:'eq.'+seatId,select:'id,class_id,label',limit:'1'}))[0];
+   }else{
+     const code=normalizeCode(input.code);if(!/^(?:[2-9a-hjkmnp-z]{4}|[0-9a-f]{32})$/.test(code))throw new Fault('Zugangscode nicht erkannt.',401);
+     const hash=await hashCode(code);seat=(await db.get('abschluss_seats',{code_hash:'eq.'+hash,select:'id,class_id,label',limit:'1'}))[0];if(!seat&&code.length===4)seat=(await db.get('abschluss_seats',{short_code_hash:'eq.'+hash,select:'id,class_id,label',limit:'1'}))[0];
+   }
+   if(!seat)throw new Fault('Zugangscode nicht erkannt.',401);
    const cls=(await db.get('abschluss_classes',{id:'eq.'+seat.class_id,select:'id,title,version',limit:'1'}))[0];if(!cls||cls.version!==VERSION)throw new Fault('Diese Aufgabe ist nicht verfügbar.',404);
    let attempt=(await db.get('abschluss_attempts',{seat_id:'eq.'+seat.id,select:'*',limit:'1'}))[0];if(!attempt)throw new Fault('Bearbeitung noch nicht eingerichtet.',503);
    if(action==='student.open'){
      if(!attempt.started_at){await db.patch('abschluss_attempts',{seat_id:'eq.'+seat.id,started_at:'is.null'},{started_at:now(),updated_at:now()});attempt=(await db.get('abschluss_attempts',{seat_id:'eq.'+seat.id,select:'*',limit:'1'}))[0];}
-     return reply({seat:{id:seat.id,label:seat.label},classTitle:cls.title,attempt:publicAttempt(attempt)});
+     return reply({accessCode:await issueSession(seat.id),seat:{id:seat.id,label:seat.label},classTitle:cls.title,attempt:publicAttempt(attempt)});
    }
    if(!['student.save','student.submit'].includes(action))throw new Fault('Unbekannte Aktion.',404);
    if(attempt.submitted_at){if(action==='student.submit')return reply({attempt:publicAttempt(attempt)});throw new Fault('Die Aufgabe wurde bereits abgegeben.',409,'submitted');}
@@ -42,7 +52,7 @@ export function createHandler({db,verifyUser,allowedOrigins,now=()=>new Date().t
    if(action==='teacher.classes'){return reply({classes:await db.get('abschluss_classes',{owner_id:'eq.'+user.id,select:'id,title,version,created_at',order:'created_at.desc'})});}
    if(action==='teacher.create'){
      const title=typeof input.title==='string'?input.title.trim():'';if(!title||title.length>60||!Number.isInteger(input.count)||input.count<1||input.count>40)throw new Fault('Bezeichnung oder Platzanzahl ist ungültig.');const existing=await db.get('abschluss_classes',{owner_id:'eq.'+user.id,select:'id',limit:'51'});if(existing.length>=50)throw new Fault('Höchstens 50 Lerngruppen sind erlaubt.');
-     const cls={id:crypto.randomUUID(),owner_id:user.id,title,version:VERSION,created_at:now()};await db.insert('abschluss_classes',cls);const codes=[],rows=[];for(let i=1;i<=input.count;i++){const secret=makeCode(),label='Platz '+String(i).padStart(2,'0'),id=crypto.randomUUID();codes.push({label,code:secret.match(/.{1,4}/g).join('-')});rows.push({id,class_id:cls.id,label,code_hash:await hashCode(secret)});}await db.insert('abschluss_seats',rows);await db.insert('abschluss_attempts',rows.map(s=>({seat_id:s.id,answers:blank()})));return reply({class:{id:cls.id,title:cls.title,version:cls.version,created_at:cls.created_at},codes});
+     const cls={id:crypto.randomUUID(),owner_id:user.id,title,version:VERSION,created_at:now()};await db.insert('abschluss_classes',cls);const codes=[],rows=[],reserved=new Set();for(let i=1;i<=input.count;i++){const secret=await unusedCode(db,reserved),label='Platz '+String(i).padStart(2,'0'),id=crypto.randomUUID();codes.push({label,code:secret.code.toUpperCase()});rows.push({id,class_id:cls.id,label,code_hash:secret.hash});}await db.insert('abschluss_seats',rows);await db.insert('abschluss_attempts',rows.map(s=>({seat_id:s.id,answers:blank()})));return reply({class:{id:cls.id,title:cls.title,version:cls.version,created_at:cls.created_at},codes});
    }
    if(action==='teacher.roster'){
      if(typeof input.classId!=='string'||!UUID.test(input.classId))throw new Fault('Ungültige Lerngruppe.');const cls=(await db.get('abschluss_classes',{id:'eq.'+input.classId,owner_id:'eq.'+user.id,select:'id',limit:'1'}))[0];if(!cls)throw new Fault('Kein Zugriff auf diese Lerngruppe.',403);
