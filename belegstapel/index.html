@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Belegstapel Familie Arnold</title>
+<style>
+/* Oben der Schreibtisch mit verstreuten Belegen in echten Größenverhältnissen; Antippen öffnet die Beleganalyse. */
+:root {
+  --bg: #f2f2f7; --card: #ffffff; --fill: #f2f2f7; --fill2: #e9e9ee; --ink: #1c1c1e; --muted: #8e8e93; --sec: #3c3c43;
+  --sep: rgba(60,60,67,.14); --blue: #007aff; --green: #34c759; --green-ink: #1f8a3a; --green-soft: #e8f8ec;
+  --red: #ff3b30; --red-ink: #d70015; --red-soft: #ffeceb; --orange-soft: #fff4e0; --orange-ink: #8a5300;
+  --r: 14px; --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05);
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+.app { max-width: 1320px; margin: 0 auto; padding: 22px 16px 40px; display: grid; gap: 18px; }
+@media (min-width: 900px) { .app { padding-inline: 28px; } }
+
+/* Kopf */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px; }
+.kicker { font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
+.top h1 { font-size: clamp(1.75rem, 3.4vw, 2.25rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; margin: 0; }
+.progress { display: grid; gap: 8px; min-width: 260px; background: var(--card); border-radius: var(--r); padding: 12px 16px; box-shadow: var(--shadow); }
+.progress .lbl { font-size: .9rem; font-weight: 600; color: var(--sec); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; border-radius: 99px; background: var(--fill2); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--green); border-radius: 99px; transition: width .35s ease; }
+
+/* Anleitung als gruppierte Liste */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; margin: 0; padding: 0; list-style: none; background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; counter-reset: s; }
+.steps li { counter-increment: s; display: flex; gap: 12px; align-items: center; padding: 12px 16px; font-size: .95rem; color: var(--sec); }
+.steps li + li { box-shadow: inset 1px 0 0 var(--sep); }
+.steps li::before { content: counter(s); flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; font-size: .85rem; display: grid; place-items: center; }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.toolbar h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; margin: 0; }
+.tools { display: inline-flex; background: var(--fill2); border-radius: 10px; padding: 2px; gap: 2px; }
+.chipbtn { font: inherit; font-size: .85rem; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.chipbtn:hover { background: rgba(255,255,255,.6); }
+.chipbtn[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); font-weight: 600; }
+
+/* Tisch – hell, wie eine helle Arbeitsfläche */
+.deskwrap { position: relative; border-radius: 20px; overflow: hidden; background: radial-gradient(120% 90% at 50% 0%, #fbfbfd 0%, #eceef2 70%, #e4e6eb 100%); box-shadow: inset 0 0 0 1px var(--sep); }
+.desk { position: absolute; top: 0; left: 0; transform-origin: top left; }
+.item[hidden] { display: none; }
+.item { position: absolute; width: max-content; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.08)) drop-shadow(0 12px 24px rgba(0,0,0,.10)); }
+.item.dragging { cursor: grabbing; filter: drop-shadow(0 30px 40px rgba(0,0,0,.18)); }
+.item .paper { background: #fff; color: #111; pointer-events: none; }
+.item.done .paper { opacity: .55; }
+.item:focus-visible { outline: 8px solid var(--blue); outline-offset: 6px; }
+.stamp { position: absolute; top: 16px; right: 16px; z-index: 2; font: 600 30px/1 var(--font); color: #fff; padding: 12px 22px; border-radius: 99px; pointer-events: none; white-space: nowrap; background: var(--green); box-shadow: 0 4px 14px rgba(52,199,89,.35); }
+.stamp.part { background: rgba(28,28,30,.72); box-shadow: none; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.hint { font-size: .85rem; color: var(--muted); margin: 8px 4px 0; }
+.foot { display: flex; flex-wrap: wrap; gap: 10px 18px; justify-content: space-between; align-items: center; font-size: .85rem; color: var(--muted); padding: 4px; }
+.foot .links { display: flex; gap: 18px; flex-wrap: wrap; }
+.linkbtn { font: inherit; font-weight: 500; background: none; border: 0; color: var(--blue); cursor: pointer; padding: 6px 0; }
+
+/* Sheet (Dialog) */
+dialog { border: 0; padding: 0; border-radius: 22px; background: var(--bg); color: var(--ink); width: min(1180px, calc(100vw - 24px)); max-height: calc(100vh - 24px); box-shadow: 0 30px 80px rgba(0,0,0,.25); overflow: hidden; }
+dialog::backdrop { background: rgba(0,0,0,.28); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+dialog[open] { animation: rise .25s cubic-bezier(.2,.8,.2,1); }
+@keyframes rise { from { transform: translateY(16px); opacity: 0; } }
+.dlg { display: grid; grid-template-rows: auto minmax(0,1fr); max-height: calc(100vh - 24px); }
+.dlg-h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(249,249,251,.92); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--sep); }
+.dlg-h .t { grid-column: 2; font-weight: 600; font-size: 1rem; text-align: center; white-space: nowrap; }
+.nav { grid-column: 3; justify-self: end; display: flex; gap: 4px; align-items: center; }
+.navl { grid-column: 1; justify-self: start; display: flex; gap: 4px; }
+.iconbtn { font: inherit; font-size: 1rem; font-weight: 500; min-width: 40px; min-height: 36px; border-radius: 99px; border: 0; background: transparent; color: var(--blue); cursor: pointer; padding: 0 10px; }
+.iconbtn:hover { background: var(--fill2); }
+.iconbtn.round { width: 36px; padding: 0; background: var(--fill2); font-size: 1.25rem; line-height: 1; }
+.iconbtn.strong { font-weight: 600; }
+.dlg-b { display: grid; overflow: auto; }
+@media (min-width: 860px) { .dlg-b { grid-template-columns: minmax(0,1fr) 410px; overflow: hidden; } }
+.viewer { background: #e9eaee; padding: 20px; overflow: auto; min-height: 260px; }
+@media (min-width: 860px) { .viewer { max-height: calc(100vh - 82px); } }
+.viewer .sheet { background: #fff; color: #111; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.06), 0 14px 30px rgba(0,0,0,.08); transform-origin: top left; width: max-content; }
+.form { padding: 6px 16px 22px; display: grid; gap: 6px; align-content: start; background: var(--bg); }
+@media (min-width: 860px) { .form { overflow: auto; max-height: calc(100vh - 82px); border-left: 1px solid var(--sep); } }
+
+/* Abschnitte im iOS-Settings-Stil */
+.q { display: grid; gap: 0; }
+.qh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 18px 4px 8px; font-size: .92rem; font-weight: 600; color: var(--sec); }
+.qh .st { text-transform: none; letter-spacing: 0; font-size: .8rem; font-weight: 600; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.qh .st.ok { color: var(--green-ink); }
+.grid2, .grid3 { display: grid; gap: 8px; background: var(--card); border-radius: var(--r); padding: 8px; }
+.grid2 { grid-template-columns: 1fr 1fr; }
+.grid3 { grid-template-columns: repeat(3, 1fr); }
+.grid2 .opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.opt { font: inherit; font-size: .93rem; font-weight: 500; text-align: center; padding: 10px 8px; border-radius: 10px; border: 0; background: var(--fill); color: var(--ink); cursor: pointer; min-height: 44px; transition: background .15s, color .15s, transform .1s; }
+.opt:hover:not(:disabled) { background: var(--fill2); }
+.opt:active:not(:disabled) { transform: scale(.97); }
+.opt.ok { background: var(--green); color: #fff; font-weight: 600; }
+.opt.bad { background: var(--red-soft); color: var(--red-ink); text-decoration: line-through; }
+.opt:disabled { cursor: default; }
+.opt:disabled:not(.ok) { opacity: .4; }
+.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* Aussagen als gruppierte Liste mit Segmented Control */
+.group { background: var(--card); border-radius: var(--r); overflow: hidden; }
+.stmt { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 6px 12px; align-items: center; padding: 11px 14px; position: relative; }
+.stmt + .stmt::before { content: ''; position: absolute; top: 0; left: 14px; right: 0; height: 1px; background: var(--sep); }
+.stmt .txt { font-size: .93rem; }
+.stmt .yn { display: inline-flex; background: var(--fill2); border-radius: 9px; padding: 2px; gap: 2px; }
+.stmt .yn .opt { min-width: 54px; min-height: 32px; padding: 5px 10px; border-radius: 7px; background: transparent; font-size: .88rem; }
+.stmt .yn .opt:hover:not(:disabled) { background: rgba(255,255,255,.7); }
+.stmt .yn .opt.ok { background: var(--green); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.stmt .yn .opt.bad { background: var(--card); color: var(--red-ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.stmt .yn .opt:disabled:not(.ok) { opacity: .45; }
+
+/* Rückmeldungen */
+.fb { font-size: .85rem; padding: 8px 12px; border-radius: 10px; line-height: 1.35; margin-top: 8px; display: flex; gap: 8px; align-items: flex-start; }
+.fb:empty { display: none; }
+.fb::before { flex: none; font-weight: 700; }
+.fb.ok { background: var(--green-soft); color: var(--green-ink); }
+.fb.ok::before { content: '✓'; }
+.fb.bad { background: var(--red-soft); color: var(--red-ink); }
+.fb.bad::before { content: '!'; }
+.fb.tip { background: var(--orange-soft); color: var(--orange-ink); }
+.fb.tip::before { content: '💡'; font-weight: 400; }
+.stmt .fb { margin-top: 0; }
+
+/* Betrag */
+.betragcard { background: var(--card); border-radius: var(--r); padding: 12px 14px; margin-top: 8px; display: grid; gap: 8px; }
+.betragcard label { font-size: .93rem; }
+.betrag { display: flex; align-items: center; gap: 8px; }
+.betrag input { font: inherit; font-size: 1.15rem; font-weight: 600; padding: 9px 12px; border-radius: 10px; border: 0; background: var(--fill); color: var(--ink); width: 100%; text-align: right; font-variant-numeric: tabular-nums; }
+.betrag input::placeholder { color: #c7c7cc; }
+.betrag input.ok { background: var(--green-soft); color: var(--green-ink); }
+.betrag span { font-weight: 600; color: var(--sec); }
+.betrag .opt { flex: none; padding-inline: 18px; background: var(--blue); color: #fff; font-weight: 600; }
+.betrag .opt:hover:not(:disabled) { background: #0062cc; }
+.betragcard .fb { margin-top: 0; }
+input:focus-visible, button:focus-visible { outline: 3px solid rgba(0,122,255,.45); outline-offset: 2px; }
+.done-box { margin-top: 12px; background: var(--green-soft); color: var(--green-ink); border-radius: var(--r); padding: 12px 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.primary { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 99px; border: 0; background: var(--blue); color: #fff; cursor: pointer; }
+.done-box .primary { background: var(--green); }
+.secondary { font: inherit; font-size: .9rem; padding: 12px 14px; margin-top: 14px; border-radius: var(--r); border: 0; background: var(--card); color: var(--red); cursor: pointer; width: 100%; }
+
+/* Lehrkraft */
+#teacher { width: min(640px, calc(100vw - 24px)); }
+#teacher .dlg-h { grid-template-columns: 1fr auto; }
+#teacher .dlg-h .t { grid-column: 1; text-align: left; }
+#teacher .dlg-h .iconbtn { grid-column: 2; }
+.tbody { padding: 16px; display: grid; gap: 14px; overflow: auto; }
+.tbody input[type=password] { font: inherit; padding: 11px 12px; border-radius: 10px; border: 0; background: var(--card); color: var(--ink); width: 100%; }
+.err { color: var(--red-ink); font-size: .9rem; min-height: 1.2em; margin: 0; }
+.ttab { width: 100%; border-collapse: collapse; font-size: .88rem; background: var(--card); border-radius: var(--r); overflow: hidden; }
+.ttab th { font-size: .75rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); font-weight: 600; background: var(--fill); }
+.ttab th, .ttab td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--sep); vertical-align: top; }
+.ttab td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.danger { font: inherit; padding: 12px 14px; border-radius: var(--r); border: 0; color: var(--red); background: var(--card); cursor: pointer; }
+.note { font-size: .85rem; color: var(--sec); background: var(--card); border-radius: var(--r); padding: 10px 12px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* --- Beleg-Stile (aus der Druckvorlage) --- */
+.blk { display: inline-block; vertical-align: top; margin: 0 3mm 5mm 0; break-inside: avoid; page-break-inside: avoid; position: relative; border: 1px dotted #999; }
+.tag { position: absolute; top: 1mm; right: 1.5mm; font: 7pt Arial; color: #999; }
+.bon { width: 72mm; padding: 6mm 4mm 6mm; font-family: Consolas, 'Courier New', monospace; font-size: 9pt; line-height: 1.12; }
+.bon .c { text-align: center; } .bon .logo { font-family: 'Arial Black', Arial, sans-serif; font-size: 14pt; margin-bottom: 1mm; }
+.bon .sub { font-size: 8.5pt; } .bon hr { border: 0; border-top: 1px dashed #333; margin: 2mm 0; }
+.bon table { width: 100%; border-collapse: collapse; } .bon td { padding: 0; vertical-align: top; }
+.r { text-align: right; white-space: nowrap; } .d { font-size: 8pt; color: #444; } .small { font-size: 8pt; }
+.bon .sum td { font-weight: bold; font-size: 12pt; }
+.rg, .ka { width: 180mm; padding: 6mm 7mm; font-size: 9.5pt; }
+.kopf { width: 100%; border-collapse: collapse; } .kopf td { vertical-align: top; }
+.firma { font-size: 14pt; font-weight: bold; color: #1f3864; } .fz { font-size: 8pt; color: #555; margin-bottom: 4mm; }
+.an { font-size: 9.5pt; } .meta { text-align: right; font-size: 9pt; }
+.titel { font-size: 12pt; font-weight: bold; margin: 4mm 0 2mm; }
+table.pos { width: 100%; border-collapse: collapse; margin-bottom: 2mm; } table.pos td { border-bottom: 1px solid #ccc; padding: 1mm 1.5mm; vertical-align: top; }
+table.pos tr.th td { background: #e8edf5; font-weight: bold; }
+table.pos tr.tot td { font-weight: bold; border-top: 1.5px solid #333; }
+table.pos tr.net td { font-weight: bold; font-size: 11pt; background: #fff3c4; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+.hinweis { font-size: 8.5pt; color: #444; margin-top: 2mm; }
+.bank { font-size: 13pt; font-weight: bold; color: #0b5d3b; } .kt { font-weight: bold; margin-top: 2mm; } .kd { font-size: 8.5pt; color: #555; margin-bottom: 2mm; }
+.neg { color: #b00000; } .gut { color: #0b5d3b; }
+
+/* --- Varianten --- */
+.s-lohn1 { width: 172mm; font-family: Calibri, Arial, sans-serif; font-size: 10pt; }
+.s-lohn1 .firma { color: #0d2c5a; } .s-lohn1 table.pos tr.th td { background: #0d2c5a; color: #fff; }
+.s-lohn2 { width: 148mm; font-family: 'Lucida Console', 'Courier New', monospace; font-size: 8pt; border: 1px solid #666; }
+.s-lohn2 .firma { font-size: 10.5pt; color: #000; } .s-lohn2 .titel { font-size: 10pt; text-transform: uppercase; letter-spacing: 1px; }
+.s-lohn2 table.pos td { border-bottom: 1px dotted #888; padding: 0.6mm 1mm; } .s-lohn2 table.pos tr.th td { background: #eee; }
+.s-lohn2 table.pos tr.net td { background: #ddd; font-size: 9.5pt; }
+.s-ka1 { width: 125mm; font-size: 8.5pt; }
+.s-ka2 { width: 150mm; font-family: 'Segoe UI', Arial; background: #f3faf6; border: 1px solid #9cc9b0; border-radius: 3mm; }
+.s-ka2 .bank { font-size: 11pt; }
+.s-ka3 { width: 180mm; font-family: Consolas, monospace; font-size: 8.5pt; }
+.s-ka3 .bank { font-family: Arial; background: #0b5d3b; color: #fff; padding: 1.5mm 3mm; }
+.s-energie { width: 148mm; font-family: 'Segoe UI', Arial; border: 1px solid #8bc48f; border-radius: 4mm; }
+.s-energie .firma { background: #2e7d32; color: #fff; padding: 1.5mm 4mm; border-radius: 2mm; display: inline-block; font-size: 12pt; }
+.s-energie table.pos tr.th td { background: #e3f1e3; } .s-energie .titel { color: #2e7d32; }
+.s-vers { width: 165mm; font-family: Georgia, 'Times New Roman', serif; font-size: 9pt; }
+.s-vers .firma { color: #7a1020; border-bottom: 3px double #7a1020; font-variant: small-caps; font-size: 15pt; padding-bottom: 1mm; }
+.s-vers table.pos tr.th td { background: none; border-bottom: 2px solid #7a1020; color: #7a1020; }
+.s-alpen { width: 128mm; font-family: Cambria, Georgia, serif; font-size: 8.5pt; border-left: 5mm solid #2b6cb0; }
+.s-alpen .firma { color: #2b6cb0; font-size: 12pt; } .s-alpen table.pos tr.th td { background: #e6eef8; }
+.s-tele { width: 176mm; font-family: Verdana, sans-serif; font-size: 8.3pt; }
+.s-tele .firma { color: #8e1b74; font-size: 17pt; letter-spacing: -0.5px; } .s-tele .titel { color: #8e1b74; }
+.s-tele table.pos tr.th td { background: #8e1b74; color: #fff; } .s-tele table.pos tr.tot td { background: #f6e6f2; }
+.s-garten { width: 158mm; font-family: 'Trebuchet MS', sans-serif; background: #fbfdf6; }
+.s-garten .firma { color: #4a7c1f; border: 2px solid #4a7c1f; padding: 1mm 4mm; display: inline-block; border-radius: 8mm; }
+.s-garten table.pos tr.th td { background: #4a7c1f; color: #fff; } .s-garten table.pos tr:nth-child(even) td { background: #eef6e4; }
+.s-werkstatt { width: 180mm; font-family: 'Lucida Console', 'Courier New', monospace; font-size: 8.3pt; background: #fafafa; }
+.s-werkstatt .firma { color: #000; text-transform: uppercase; font-size: 13pt; letter-spacing: 2px; }
+.s-werkstatt table.pos td { border-bottom: 1px dashed #999; } .s-werkstatt table.pos tr.th td { background: #ddd; }
+.bon.s-kino { width: 56mm; font-size: 8.3pt; }
+.s-kino .logo { background: #111; color: #fff; padding: 1.5mm 1mm; font-size: 11pt; }
+
+/* Eintrittskarten */
+.tk { display: inline-flex; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; font-size: 8.5pt; background: #fff; }
+.s-bad { --c: #0277bd; width: 108mm; } .s-park { --c: #d84315; width: 150mm; font-size: 9.5pt; }
+.tkm { flex: 1; padding: 3mm 4mm; border-top: 4mm solid var(--c); border-right: 2px dashed #888; }
+.tkn { font-weight: 800; font-size: 14pt; color: var(--c); text-transform: uppercase; }
+.s-park .tkn { font-size: 18pt; font-family: 'Arial Black', Arial; }
+.tks { font-size: 7.5pt; color: #555; margin-bottom: 2mm; }
+.tkl { width: 100%; border-collapse: collapse; } .tkl td { padding: 0.5mm 0 0.5mm 3mm; } .tkl td:first-child { padding-left: 0; }
+.tksum { font-weight: bold; font-size: 11pt; border-top: 1px solid var(--c); margin-top: 1mm; padding-top: 1mm; }
+.tkmw, .tkf { font-size: 7pt; color: #555; } .tkf { margin-top: 1mm; font-style: italic; }
+.tkstub { width: 27mm; padding: 3mm 2mm; text-align: center; font-size: 7.5pt; border-top: 4mm solid var(--c); background: #f6f6f6; }
+.tkst { font-weight: bold; color: var(--c); margin-bottom: 1mm; }
+.tkbar { height: 9mm; margin: 1.5mm 0; background: repeating-linear-gradient(90deg, #000 0 1px, #fff 1px 3px, #000 3px 5px, #fff 5px 6px, #000 6px 7px, #fff 7px 9px); }
+.tksb { font-weight: bold; }
+
+/* Quittung */
+.qu { width: 150mm; padding: 5mm 6mm; font-family: Arial, sans-serif; font-size: 8pt; background: #fffef2; border: 1px solid #bbb; }
+.qk { width: 100%; } .qt { font-size: 18pt; font-weight: bold; letter-spacing: 1px; } .qnr { font-size: 9pt; font-weight: normal; letter-spacing: 0; margin-top: 2mm; }
+.hw { font-family: 'Segoe Print', 'Ink Free', 'Comic Sans MS', cursive; color: #1a3d9c; font-size: 10.5pt; }
+.qb { border-collapse: collapse; margin-left: auto; } .qbw { text-align: right; vertical-align: top; } .qb td { border: 1px solid #888; padding: 0.5mm 2mm; } .qb td.hw { text-align: right; min-width: 22mm; }
+.qb tr.qg td { font-weight: bold; }
+.ql { clear: both; border-bottom: 1px solid #888; margin-top: 2.5mm; display: flex; gap: 3mm; align-items: baseline; }
+.qlab { font-size: 7pt; color: #555; min-width: 26mm; display: inline-block; } .qlab2 { margin-left: auto; font-size: 7pt; color: #555; }
+.qsm { font-size: 8pt; }
+.qf { width: 100%; margin-top: 3mm; border-collapse: collapse; } .qf td { vertical-align: bottom; width: 33%; padding-right: 3mm; }
+.qstempel { border: 2px solid #7a2e8c !important; color: #7a2e8c; text-align: center; font-size: 7pt; transform: rotate(-4deg); padding: 1.5mm !important; }
+.sig { font-size: 15pt; }
+
+.paper .blk, .sheet .blk { margin: 0 !important; border: 0 !important; }
+table.pos tr.mark td { background: #fff27a !important; box-shadow: inset 0 -2px 0 #f0d800; }
+
+/* Druck: alle Belege als Schneidevorlage */
+#print { display: none; }
+@media print {
+  @page { size: A4; margin: 10mm; }
+  body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .app, dialog { display: none !important; }
+  #print { display: block; }
+  #print .blk { border: 1px dotted #999; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="kicker">BwR 7 · Familie Arnold · Oktober 2026</div>
+      <h1>Belegstapel Familie Arnold</h1>
+    </div>
+    <div class="progress" aria-live="polite">
+      <div class="lbl" id="progLbl">0 von 12 Belegen ausgewertet</div>
+      <div class="bar" aria-hidden="true"><span id="progBar" style="width:0"></span></div>
+    </div>
+  </header>
+  <ol class="steps">
+    <li>Tippt einen Beleg auf dem Tisch an und lest ihn genau.</li>
+    <li>Bestimmt die Belegart und prüft, was auf dem Beleg zutrifft.</li>
+    <li>Tragt ein, welcher Betrag für den Haushaltsplan zählt.</li>
+  </ol>
+  <section aria-labelledby="deskH">
+    <div class="toolbar">
+      <h2 id="deskH">Der Küchentisch der Familie Arnold</h2>
+      <div class="tools">
+        <button class="chipbtn" id="hideDone" aria-pressed="false">Fertige zur Seite legen</button>
+        <button class="chipbtn" id="tidy">Belege neu ausbreiten</button>
+      </div>
+    </div>
+    <div class="deskwrap" id="deskwrap"><div class="desk" id="desk"></div></div>
+    <p class="hint">Ihr könnt die Belege mit dem Finger verschieben, wenn einer einen anderen verdeckt.</p>
+  </section>
+  <footer class="foot">
+    <span>Alle Firmen, Personen und Belege sind für den Unterricht erfunden.</span>
+    <span class="links"><button class="linkbtn" id="printBtn">Belege drucken</button><button class="linkbtn" id="openTeacher">Für Lehrkräfte</button></span>
+  </footer>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <div class="dlg">
+    <div class="dlg-h">
+      <div class="navl">
+        <button class="iconbtn round" id="prevBtn" aria-label="Vorheriger Beleg">‹</button>
+        <button class="iconbtn round" id="nextBtn" aria-label="Nächster Beleg">›</button>
+      </div>
+      <span class="t" id="dlgT">Beleg</span>
+      <div class="nav"><button class="iconbtn strong" id="closeBtn">Fertig</button></div>
+    </div>
+    <div class="dlg-b">
+      <div class="viewer" id="viewer"></div>
+      <div class="form" id="form"></div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="teacher" aria-labelledby="tT">
+  <div class="dlg">
+    <div class="dlg-h"><span class="t" id="tT">Für Lehrkräfte</span><button class="iconbtn" id="tClose">Schließen</button></div>
+    <div class="tbody">
+      <div id="tLocked" class="q">
+        <label for="tCode"><b>Code eingeben</b></label>
+        <input type="password" id="tCode" inputmode="numeric" autocomplete="off">
+        <p class="err" id="tErr"></p>
+        <button class="primary" id="tUnlock">Freischalten</button>
+      </div>
+      <div id="tOpen" hidden class="q">
+        <div class="note">Übersicht für dieses Gerät: Fehlversuche zeigen, wo die Gruppe Schwierigkeiten hatte.</div>
+        <div id="tTable"></div>
+        <button class="danger" id="resetBtn">Alle Eingaben auf diesem Gerät löschen</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div id="print"></div>
+
+<script type="application/json" id="data">[{"id": "k1", "art": "kb", "html": "<div class=\"blk bon \"><div class=\"c logo\">SINGOLD-MARKT<\/div><div class=\"c sub\">Ihr Nahversorger in Bobingen<br>Hochstraße 40 · 86399 Bobingen<\/div><hr><div class=small>EUR<\/div><table><tr><td>Vollmilch 3,5 % 1 l<\/td><td class=r>4,76 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;4 x 1,19<\/td><td><\/td><\/tr><tr><td>Bauernbrot 1 kg<\/td><td class=r>3,49 A<\/td><\/tr><tr><td>Butter 250 g<\/td><td class=r>4,78 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;2 x 2,39<\/td><td><\/td><\/tr><tr><td>Eier Bodenhaltung 10 St.<\/td><td class=r>3,29 A<\/td><\/tr><tr><td>Äpfel lose<\/td><td class=r>3,74 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;1,500 kg x 2,49 EUR/kg<\/td><td><\/td><\/tr><tr><td>Bananen lose<\/td><td class=r>1,86 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;1,100 kg x 1,69 EUR/kg<\/td><td><\/td><\/tr><tr><td>Kartoffeln 2,5 kg<\/td><td class=r>2,99 A<\/td><\/tr><tr><td>Hähnchenbrustfilet 600 g<\/td><td class=r>6,99 A<\/td><\/tr><tr><td>Spaghetti 500 g<\/td><td class=r>3,87 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;3 x 1,29<\/td><td><\/td><\/tr><tr><td>Tomaten passiert 500 g<\/td><td class=r>1,78 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;2 x 0,89<\/td><td><\/td><\/tr><tr><td>Gouda Scheiben 400 g<\/td><td class=r>3,49 A<\/td><\/tr><tr><td>Joghurt natur 500 g<\/td><td class=r>2,36 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;4 x 0,59<\/td><td><\/td><\/tr><tr><td>Müsli 750 g<\/td><td class=r>3,29 A<\/td><\/tr><tr><td>Apfelsaft 1 l<\/td><td class=r>4,47 B<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;3 x 1,49<\/td><td><\/td><\/tr><tr><td>Spülmittel 500 ml<\/td><td class=r>1,45 B<\/td><\/tr><tr><td>Küchenrolle 4 Rollen<\/td><td class=r>3,99 B<\/td><\/tr><tr><td>Waschmittel 20 WL<\/td><td class=r>5,95 B<\/td><\/tr><\/table><hr><table><tr class=sum><td>SUMME<\/td><td class=r>EUR 62,55<\/td><\/tr><\/table><hr><table><tr><td>Geg. girocard<\/td><td class=r>EUR 62,55<\/td><\/tr><\/table><hr><table class=small><tr><td>Steuer<\/td><td class=r>%<\/td><td class=r>Netto<\/td><td class=r>MwSt<\/td><td class=r>Brutto<\/td><\/tr><tr><td>A<\/td><td class=r>7,0<\/td><td class=r>43,64<\/td><td class=r>3,05<\/td><td class=r>46,69<\/td><\/tr><tr><td>B<\/td><td class=r>19,0<\/td><td class=r>13,33<\/td><td class=r>2,53<\/td><td class=r>15,86<\/td><\/tr><\/table><hr><table class=small><tr><td>Anzahl Artikel: 29<\/td><td><\/td><\/tr><tr><td>06.10.2026 &nbsp;17:48 Uhr<\/td><td class=r>Bon 4418<\/td><\/tr><tr><td>Kasse 02<\/td><td class=r>Bed. 14<\/td><\/tr><tr><td colspan=2>TSE-Transaktion: 318804<\/td><\/tr><\/table><hr><div class=c>Vielen Dank für Ihren Einkauf!<br>Bitte Bon aufbewahren.<\/div><\/div>", "s": [0, 1, 1, 0, 1], "zahl": "karte", "kat": "aus", "betrag": 62.55, "name": "Singold-Markt", "traps": [], "notes": {}}, {"id": "k2", "art": "kb", "html": "<div class=\"blk bon s-kino\" style=\"width:64mm\"><div class=\"c logo\">BÄCKEREI SINGOLDBECK<\/div><div class=\"c sub\">Bahnhofstraße 12 · 86399 Bobingen<\/div><hr><div class=small>EUR<\/div><table><tr><td>Semmel<\/td><td class=r>2,70 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;6 x 0,45<\/td><td><\/td><\/tr><tr><td>Brezn<\/td><td class=r>3,00 A<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;4 x 0,75<\/td><td><\/td><\/tr><tr><td>Bienenstich<\/td><td class=r>2,70 A<\/td><\/tr><\/table><hr><table><tr class=sum><td>SUMME<\/td><td class=r>EUR 8,40<\/td><\/tr><\/table><hr><table><tr><td>Geg. Bar<\/td><td class=r>EUR 10,00<\/td><\/tr><tr><td>Rückgeld<\/td><td class=r>EUR 1,60<\/td><\/tr><\/table><hr><table class=small><tr><td>Steuer<\/td><td class=r>%<\/td><td class=r>Netto<\/td><td class=r>MwSt<\/td><td class=r>Brutto<\/td><\/tr><tr><td>A<\/td><td class=r>7,0<\/td><td class=r>7,85<\/td><td class=r>0,55<\/td><td class=r>8,40<\/td><\/tr><\/table><hr><table class=small><tr><td>10.10.2026 &nbsp;07:52 Uhr<\/td><td class=r>Bon 2207<\/td><\/tr><tr><td>Kasse 01<\/td><td class=r>Bed. 3<\/td><\/tr><tr><td colspan=2>TSE-Transaktion: 90412<\/td><\/tr><\/table><hr><div class=c>Schönes Wochenende!<\/div><\/div>", "s": [0, 1, 1, 0, 1], "zahl": "bar", "kat": "aus", "betrag": 8.4, "name": "Bäckerei Singoldbeck", "traps": [[10.0, "Das ist der Geldschein, den Markus gegeben hat. Er hat Rückgeld bekommen. Was hat der Einkauf wirklich gekostet?"], [1.6, "Das ist das Rückgeld. Was hat der Einkauf gekostet?"]], "notes": {}}, {"id": "k3", "art": "kb", "html": "<div class=\"blk bon \"><div class=\"c logo\">LECHFELD-TANKSTELLE<\/div><div class=\"c sub\">Augsburger Straße 58 · 86399 Bobingen<\/div><hr><div class=small>EUR<\/div><table><tr><td>Säule 3 Super E10<\/td><td class=r>72,06 B<\/td><\/tr><tr><td class=d>&nbsp;&nbsp;41,20 l x 1,749 EUR/l<\/td><td><\/td><\/tr><\/table><hr><table><tr class=sum><td>SUMME<\/td><td class=r>EUR 72,06<\/td><\/tr><\/table><hr><table><tr><td>Geg. girocard<\/td><td class=r>EUR 72,06<\/td><\/tr><\/table><hr><table class=small><tr><td>Steuer<\/td><td class=r>%<\/td><td class=r>Netto<\/td><td class=r>MwSt<\/td><td class=r>Brutto<\/td><\/tr><tr><td>B<\/td><td class=r>19,0<\/td><td class=r>60,55<\/td><td class=r>11,51<\/td><td class=r>72,06<\/td><\/tr><\/table><hr><table class=small><tr><td>Anzahl Artikel: 1<\/td><td><\/td><\/tr><tr><td>12.10.2026 &nbsp;18:21 Uhr<\/td><td class=r>Bon 7735<\/td><\/tr><tr><td>Kasse 02<\/td><td class=r>Bed. 6<\/td><\/tr><tr><td colspan=2>TSE-Transaktion: 552901<\/td><\/tr><\/table><hr><div class=c>Gute Fahrt!<\/div><\/div>", "s": [0, 1, 1, 0, 1], "zahl": "karte", "kat": "aus", "betrag": 72.06, "name": "Lechfeld-Tankstelle", "traps": [[41.2, "Das sind die getankten Liter, kein Geldbetrag."], [1.749, "Das ist der Preis für einen Liter. Wie viel wurde insgesamt bezahlt?"]], "notes": {}}, {"id": "r1", "art": "rg", "html": "<div class=\"blk rg s-alpen\" style=\"width:172mm\"><table class=kopf><tr><td><div class=firma>ELEKTRO SONNLEITNER<\/div><div class=fz>Hausgeräte-Kundendienst · Bahnhofstraße 21 · 86399 Bobingen · Tel. 08234 55 17 30<\/div><div class=an>Familie<br>Markus und Julia Arnold<br>Lindenweg 7<br>86399 Bobingen<\/div><\/td><td class=meta>Rechnungsnummer: 2026-0418<br>Rechnungsdatum: 14.10.2026<br>Leistungsdatum: 12.10.2026<br>Kundennummer: 10 274<\/td><\/tr><\/table><div class=titel>Rechnung<\/div><div style=\"margin-bottom:2mm\">Für die Reparatur Ihrer Waschmaschine berechnen wir Ihnen:<\/div><table class=pos><tr class=th><td>Pos.<\/td><td>Leistung / Material<\/td><td class=r>Menge<\/td><td class=r>Einzelpreis<\/td><td class=r>Gesamtpreis<\/td><\/tr><tr><td>1<\/td><td>Anfahrt Bobingen (Pauschale)<\/td><td class=r>1<\/td><td class=r>35,00 €<\/td><td class=r>35,00 €<\/td><\/tr><tr><td>2<\/td><td>Reparatur Waschmaschine: Fehlersuche, Austausch Laugenpumpe, Funktionsprüfung<\/td><td class=r>1,5 Std.<\/td><td class=r>60,00 €<\/td><td class=r>90,00 €<\/td><\/tr><tr><td>3<\/td><td>Ersatzteil Laugenpumpe<\/td><td class=r>1 Stück<\/td><td class=r>45,00 €<\/td><td class=r>45,00 €<\/td><\/tr><tr><td colspan=4 class=r>Summe netto<\/td><td class=r>170,00 €<\/td><\/tr><tr><td colspan=4 class=r>zzgl. 19 % Umsatzsteuer<\/td><td class=r>32,30 €<\/td><\/tr><tr class=tot><td colspan=4 class=r>Rechnungsbetrag<\/td><td class=r>202,30 €<\/td><\/tr><\/table><div class=hinweis>Bitte überweisen Sie den Rechnungsbetrag <b>innerhalb von 14 Tagen (bis 28.10.2026)<\/b> ohne Abzug auf unser Konto bei der Lechfeld-Singold Bank eG, IBAN DE12 7206 9123 0004 5678 90. Verwendungszweck: Rechnungsnummer.<br>Steuernummer 102/215/40871 · USt-IdNr. DE 318 452 976<\/div><\/div>", "s": [1, 1, 1, 0, 0], "zahl": "ueb", "kat": "aus", "betrag": 202.3, "name": "Elektro Sonnleitner", "traps": [[170.0, "Das ist der Nettobetrag. Die Familie muss auch die Umsatzsteuer bezahlen."], [32.3, "Das ist nur die Umsatzsteuer."]], "notes": {}}, {"id": "r2", "art": "rg", "html": "<div class=\"blk rg s-tele\" style=\"width:165mm\"><table class=kopf><tr><td><div class=firma>sport·lechfeld<\/div><div class=fz>Online-Shop · Fuggerstraße 9 · 86830 Schwabmünchen · www.sport-lechfeld.de<\/div><div class=an>Frau Julia Arnold<br>Lindenweg 7<br>86399 Bobingen<\/div><\/td><td class=meta>Rechnung Nr. SL-2026-38817<br>Bestellung vom 08.10.2026<br>Rechnungsdatum: 09.10.2026<br>Kunden-Nr. 77 201<\/td><\/tr><\/table><div class=titel>Rechnung<\/div><table class=pos><tr class=th><td>Pos.<\/td><td>Artikel<\/td><td class=r>Menge<\/td><td class=r>Einzelpreis<\/td><td class=r>Gesamt<\/td><\/tr><tr><td>1<\/td><td>Hallenschuhe „Court Pro“, Gr. 37 (für Emma)<\/td><td class=r>1<\/td><td class=r>69,99 €<\/td><td class=r>69,99 €<\/td><\/tr><tr><td>2<\/td><td>Sportsocken 3er-Pack<\/td><td class=r>1<\/td><td class=r>9,95 €<\/td><td class=r>9,95 €<\/td><\/tr><tr><td>3<\/td><td>Versand<\/td><td class=r>1<\/td><td class=r>0,00 €<\/td><td class=r>0,00 €<\/td><\/tr><tr class=tot><td colspan=4 class=r>Rechnungsbetrag<\/td><td class=r>79,94 €<\/td><\/tr><tr><td colspan=4 class=r>darin enthalten 19 % MwSt.<\/td><td class=r>12,76 €<\/td><\/tr><\/table><div class=hinweis><b>Der Betrag wurde bei der Bestellung mit Ihrer Kreditkarte bezahlt.<\/b> Vielen Dank für Ihren Einkauf! Umtausch innerhalb von 30 Tagen nur mit dieser Rechnung.<\/div><\/div>", "s": [1, 1, 1, 0, 1], "zahl": "karte", "kat": "aus", "betrag": 79.94, "name": "sport·lechfeld", "traps": [[69.99, "Das ist nur der Preis für die Schuhe. Was steht beim Rechnungsbetrag?"], [12.76, "Das ist nur die enthaltene MwSt."]], "notes": {}}, {"id": "r3", "art": "rg", "html": "<div class=\"blk rg s-energie\" style=\"width:160mm\"><table class=kopf><tr><td><div class=firma>Singold-Net<\/div><div class=fz>Telefon · Internet · Mobilfunk · Postfach 12 40 · 86343 Königsbrunn<\/div><div class=an>Familie Arnold<br>Lindenweg 7<br>86399 Bobingen<\/div><\/td><td class=meta>Kunden-Nr. 4402 8817<br>Rechnung Nr. 2026-10-55302<br>Datum: 05.10.2026<\/td><\/tr><\/table><div class=titel>Ihre Rechnung für Oktober 2026<\/div><table class=pos><tr class=th><td>Pos.<\/td><td>Leistung<\/td><td class=r>Menge<\/td><td class=r>Einzelpreis<\/td><td class=r>Gesamt<\/td><\/tr><tr><td>1<\/td><td>Internet &amp; Festnetz „Home 100“<\/td><td class=r>1<\/td><td class=r>35,00 €<\/td><td class=r>35,00 €<\/td><\/tr><tr><td>2<\/td><td>Handytarif „Smart S“ (Markus, Julia)<\/td><td class=r>2<\/td><td class=r>25,00 €<\/td><td class=r>50,00 €<\/td><\/tr><tr class=tot><td colspan=4 class=r>Rechnungsbetrag<\/td><td class=r>85,00 €<\/td><\/tr><tr><td colspan=4 class=r>darin enthalten 19 % MwSt.<\/td><td class=r>13,57 €<\/td><\/tr><\/table><div class=hinweis>Der Rechnungsbetrag wird am <b>20.10.2026<\/b> per SEPA-Lastschrift von Ihrem Konto (IBAN DE45 …0815) abgebucht. Sie müssen nichts weiter tun.<\/div><\/div>", "s": [1, 1, 1, 0, 0], "zahl": "ueb", "kat": "aus", "betrag": 85.0, "name": "Singold-Net", "traps": [[50.0, "Das sind nur die beiden Handytarife."], [35.0, "Das ist nur der Internetvertrag."], [13.57, "Das ist nur die enthaltene MwSt."]], "notes": {}}, {"id": "q1", "art": "qu", "html": "<div class=\"blk qu\"><table class=qk><tr><td class=qt>Quittung<div class=qnr>Nr. <span class=hw>0129<\/span><\/div><\/td><td class=qbw><table class=qb><tr><td>Netto EUR<\/td><td class=hw>48,74<\/td><\/tr><tr><td>+ 19 % MwSt EUR<\/td><td class=hw>9,26<\/td><\/tr><tr class=qg><td>Gesamt EUR<\/td><td class=hw>58,00<\/td><\/tr><\/table><\/td><\/tr><\/table><div class=ql><span class=qlab>Gesamtbetrag in Worten<\/span><span class=hw>— achtundfünfzig —<\/span><span class=qlab2>Cent wie oben<\/span><\/div><div class=ql><span class=qlab>von<\/span><span class=hw>Julia Arnold<\/span><\/div><div class=ql><span class=qlab>für<\/span><span class=hw>Damenhaarschnitt und Kinderhaarschnitt (Felix)<\/span><\/div><div class=ql><span class=qlab><\/span><span class=qsm>in bar richtig erhalten zu haben, bestätigt<\/span><\/div><table class=qf><tr><td><span class=qlab>Ort/Datum<\/span><br><span class=hw>Bobingen, 09.10.2026<\/span><\/td><td class=qstempel><b>Salon Haarwerk<\/b><br>Inh. Julia Kraus<br>Hochstraße 7<br>86399 Bobingen<\/td><td><span class=qlab>Unterschrift des Empfängers<\/span><br><span class=\"hw sig\">J. Kraus<\/span><\/td><\/tr><\/table><\/div>", "s": [1, 1, 0, 1, 1], "zahl": "bar", "kat": "aus", "betrag": 58.0, "name": "Salon Haarwerk", "traps": [[48.74, "Das ist der Nettobetrag. Bezahlt wurde der Gesamtbetrag."], [9.26, "Das ist nur die MwSt."]], "notes": {}}, {"id": "q2", "art": "qu", "html": "<div class=\"blk qu\" style=\"background:#fff\"><table class=qk><tr><td class=qt>Quittung<div class=qnr>Nr. <span class=hw>1<\/span><\/div><\/td><td class=qbw><table class=qb><tr><td>Netto EUR<\/td><td class=hw>—<\/td><\/tr><tr><td>+ &nbsp;&nbsp;% MwSt EUR<\/td><td class=hw>—<\/td><\/tr><tr class=qg><td>Gesamt EUR<\/td><td class=hw>75,00<\/td><\/tr><\/table><\/td><\/tr><\/table><div class=ql><span class=qlab>Gesamtbetrag in Worten<\/span><span class=hw>— fünfundsiebzig —<\/span><span class=qlab2>Cent wie oben<\/span><\/div><div class=ql><span class=qlab>von<\/span><span class=hw>Markus Arnold, Bobingen<\/span><\/div><div class=ql><span class=qlab>für<\/span><span class=hw>gebrauchtes Kinderfahrrad 24 Zoll, blau (Privatverkauf)<\/span><\/div><div class=ql><span class=qlab><\/span><span class=qsm>in bar richtig erhalten zu haben, bestätigt<\/span><\/div><table class=qf><tr><td><span class=qlab>Ort/Datum<\/span><br><span class=hw>Königsbrunn, 11.10.2026<\/span><\/td><td><span class=qlab>Verkäufer (Name, Anschrift)<\/span><br><span class=hw>Klaus Wagner, Ulmenweg 3,<br>86343 Königsbrunn<\/span><\/td><td><span class=qlab>Unterschrift des Empfängers<\/span><br><span class=\"hw sig\">K. Wagner<\/span><\/td><\/tr><\/table><\/div>", "s": [1, 0, 0, 1, 1], "zahl": "bar", "kat": "aus", "betrag": 75.0, "name": "Klaus Wagner (privat)", "traps": [], "notes": {"1": "Herr Wagner verkauft als Privatperson. Privatleute weisen keine Mehrwertsteuer aus."}}, {"id": "a1", "art": "ka", "html": "<div class=\"blk ka s-ka2\" style=\"width:160mm\"><div class=bank>Lech-Singold Bank eG<\/div><div class=kt>Kontoauszug Nr. 19/2026 · Girokonto<\/div><div class=kd>Kontoinhaber: Markus und Julia Arnold, Lindenweg 7, 86399 Bobingen · IBAN DE45 7206 9123 0001 2208 15<br>Zeitraum 01.10.2026 bis 02.10.2026<\/div><table class=pos><tr class=th><td>Buchungstag<\/td><td>Buchungstext<\/td><td class=r>Betrag<\/td><\/tr><tr><td colspan=2>Kontostand alt<\/td><td class=r>412,35 €<\/td><\/tr><tr class=mark><td>01.10.<\/td><td>Gutschrift Mayer Metallbau GmbH<br>Lohn 10/2026 Markus Arnold<\/td><td class=\"r gut\">+ 2.450,00 €<\/td><\/tr><tr><td>01.10.<\/td><td>Gutschrift Modehaus Lindner KG<br>Gehalt 10/2026 Julia Arnold<\/td><td class=\"r gut\">+ 1.180,00 €<\/td><\/tr><tr><td>01.10.<\/td><td>Dauerauftrag an Hausverwaltung Rösch<br>Miete 10/2026 inkl. Nebenkosten<\/td><td class=\"r neg\">− 1.250,00 €<\/td><\/tr><tr class=tot><td colspan=2>Kontostand neu am 02.10.2026<\/td><td class=r>2.792,35 €<\/td><\/tr><\/table><div class=hinweis>Bitte prüfen Sie die Buchungen. Einwendungen sind innerhalb von sechs Wochen zu erheben.<\/div><\/div>", "s": [1, 0, 0, 0, 1], "zahl": "ueb", "kat": "ein", "betrag": 2450.0, "name": "Lech-Singold Bank (Auszug 19)", "traps": [[2792.35, "Das ist der Kontostand. Für den Haushaltsplan zählt nur die markierte Buchung."], [412.35, "Das ist der alte Kontostand. Für den Haushaltsplan zählt nur die markierte Buchung."]], "notes": {}}, {"id": "a2", "art": "ka", "html": "<div class=\"blk ka s-ka2\" style=\"width:160mm\"><div class=bank>Lech-Singold Bank eG<\/div><div class=kt>Kontoauszug Nr. 20/2026 · Girokonto<\/div><div class=kd>Kontoinhaber: Markus und Julia Arnold, Lindenweg 7, 86399 Bobingen · IBAN DE45 7206 9123 0001 2208 15<br>Zeitraum 05.10.2026 bis 07.10.2026<\/div><table class=pos><tr class=th><td>Buchungstag<\/td><td>Buchungstext<\/td><td class=r>Betrag<\/td><\/tr><tr><td colspan=2>Kontostand alt<\/td><td class=r>2.792,35 €<\/td><\/tr><tr><td>05.10.<\/td><td>Gutschrift Familienkasse Bayern Süd<br>Kindergeld 10/2026 Emma und Felix<\/td><td class=\"r gut\">+ 518,00 €<\/td><\/tr><tr class=mark><td>06.10.<\/td><td>SEPA-Lastschrift Lech-Energie GmbH<br>Abschlag Strom 10/2026, Vertrag 330 7711<\/td><td class=\"r neg\">− 95,00 €<\/td><\/tr><tr><td>07.10.<\/td><td>Kartenzahlung girocard<br>SINGOLD-MARKT Bobingen 06.10. 17:48<\/td><td class=\"r neg\">− 62,55 €<\/td><\/tr><tr class=tot><td colspan=2>Kontostand neu am 07.10.2026<\/td><td class=r>3.152,80 €<\/td><\/tr><\/table><div class=hinweis>Bitte prüfen Sie die Buchungen. Einwendungen sind innerhalb von sechs Wochen zu erheben.<\/div><\/div>", "s": [1, 0, 0, 0, 1], "zahl": "ueb", "kat": "aus", "betrag": 95.0, "name": "Lech-Singold Bank (Auszug 20)", "traps": [[3152.8, "Das ist der Kontostand. Für den Haushaltsplan zählt nur die markierte Buchung."], [2792.35, "Das ist der alte Kontostand. Für den Haushaltsplan zählt nur die markierte Buchung."]], "notes": {}}, {"id": "v1", "art": "vn", "html": "<div class=\"blk rg s-vers\" style=\"width:160mm\"><table class=kopf><tr><td><div class=firma>Lechtal Versicherung AG<\/div><div class=fz>Maximilianstraße 61 · 86150 Augsburg<\/div><div class=an>Herrn Markus Arnold<br>Lindenweg 7<br>86399 Bobingen<\/div><\/td><td class=meta>Vers.-Nr. KF 26-401 778<br>Datum: 16.10.2026<\/td><\/tr><\/table><div class=titel>Beitragsnachweis Kfz-Versicherung<\/div><table class=pos><tr class=th><td>Versicherter Zeitraum<\/td><td>Fahrzeug<\/td><td class=r>Jahresbeitrag<\/td><\/tr><tr><td>01.10.2026 – 30.09.2027<\/td><td>Kfz-Haftpflicht und Teilkasko<br>Kennzeichen A-TB 2410<\/td><td class=r>480,00 €<\/td><\/tr><tr class=tot><td colspan=2 class=r>Bezahlter Beitrag<\/td><td class=r>480,00 €<\/td><\/tr><\/table><div class=hinweis>Wir bestätigen, dass der Jahresbeitrag am <b>15.10.2026<\/b> per Lastschrift von Ihrem Konto abgebucht wurde. Bitte bewahren Sie diesen Nachweis auf.<\/div><\/div>", "s": [1, 0, 0, 0, 1], "zahl": "ueb", "kat": "aus", "betrag": 40.0, "name": "Lechtal Versicherung", "traps": [[480.0, "Das ist der Beitrag für ein ganzes Jahr. Der Haushaltsplan gilt für einen Monat. Rechne um: 480,00 € : 12."]], "notes": {"1": "Versicherungsbeiträge enthalten keine Mehrwertsteuer."}}, {"id": "v2", "art": "vn", "html": "<div class=\"blk rg\" style=\"width:150mm;font-family:Cambria,Georgia,serif;border-top:4mm solid #4b6b3a\"><table class=kopf><tr><td><div class=firma style=\"color:#4b6b3a\">Wertach-Versicherung VVaG<\/div><div class=fz>Gögginger Straße 120 · 86199 Augsburg<\/div><div class=an>Familie Arnold<br>Lindenweg 7<br>86399 Bobingen<\/div><\/td><td class=meta>Vertrags-Nr. PH 3 118 204<br>Datum: 13.10.2026<\/td><\/tr><\/table><div class=titel>Beitragsbescheinigung<\/div><table class=pos><tr class=th><td>Vertrag<\/td><td>Zeitraum<\/td><td class=r>Beitrag<\/td><\/tr><tr><td>Privathaftpflicht- und Hausratversicherung (Familientarif „Kombi“)<\/td><td>10/2026 – 09/2027<\/td><td class=r>120,00 € jährlich<\/td><\/tr><\/table><div class=hinweis>Den Jahresbeitrag von 120,00 € haben wir am 12.10.2026 dankend erhalten (SEPA-Lastschrift). Ihr Versicherungsschutz besteht bis 30.09.2027.<\/div><\/div>", "s": [1, 0, 0, 0, 1], "zahl": "ueb", "kat": "aus", "betrag": 10.0, "name": "Wertach-Versicherung", "traps": [[120.0, "Das ist der Beitrag für ein ganzes Jahr. Der Haushaltsplan gilt für einen Monat. Rechne um: 120,00 € : 12."]], "notes": {"1": "Versicherungsbeiträge enthalten keine Mehrwertsteuer."}}]</script>
+<script>
+(function () {
+  var DATA = JSON.parse(document.getElementById('data').textContent);
+  var ART = { kb: 'Kassenbon', rg: 'Rechnung', qu: 'Quittung', ka: 'Kontoauszug', vn: 'Versicherungsnachweis' };
+  var ART_ORDER = ['kb', 'rg', 'qu', 'ka', 'vn'];
+  var ART_TIP = {
+    kb: 'Tipp: Dieser Beleg wurde direkt an der Kasse ausgedruckt – ohne Namen des Kunden.',
+    rg: 'Tipp: Der Beleg ist an die Familie adressiert und listet Waren oder Leistungen mit Preisen auf.',
+    qu: 'Tipp: Hier bestätigt jemand mit seiner Unterschrift, dass er Geld bar erhalten hat.',
+    ka: 'Tipp: Diesen Beleg hat die Bank erstellt. Er zeigt Buchungen auf dem Girokonto.',
+    vn: 'Tipp: Der Beleg kommt von einer Versicherung und bestätigt bezahlte Beiträge.'
+  };
+  var STMT = [
+    { t: 'Familie Arnold (oder ein Familienmitglied) wird auf dem Beleg genannt.', tip: 'Sucht nach „Arnold“ – im Adressfeld, bei „von“ oder beim Kontoinhaber.' },
+    { t: 'Die Mehrwertsteuer (MwSt. bzw. USt.) ist ausgewiesen.', tip: 'Sucht nach „MwSt“, „USt“ oder „Umsatzsteuer“ mit Betrag.' },
+    { t: 'Für einzelne Waren oder Leistungen sind Einzelpreise angegeben.', tip: 'Stehen Preise für einzelne Waren oder Leistungen da – oder nur ein Gesamtbetrag?' },
+    { t: 'Der Beleg ist unterschrieben.', tip: 'Gibt es eine handschriftliche Unterschrift?' },
+    { t: 'Die Zahlung ist bereits erfolgt.', tip: 'Steht da „bezahlt“, „gegeben“, „erhalten“ oder „gutgeschrieben“ – oder „bitte überweisen“ bzw. „wird abgebucht“?' }
+  ];
+  var OK_TXT = ['Richtig!', 'Genau!', 'Stimmt!', 'Gut erkannt!'];
+  var ZAHL = { bar: 'bar', karte: 'mit Karte', ueb: 'Überweisung / Lastschrift' };
+  var ZAHL_TIP = 'Sucht nach „bar“, „girocard“, „Kreditkarte“, „überweisen“, „Lastschrift“ oder „Dauerauftrag“.';
+  var CODE = '2026', KEY = 'belegstapel-arnold-v1', W = 2300;
+  var TOTAL = 1 + STMT.length + 1 + 2; // Belegart, Aussagen, Zahlungsart, Einnahme/Ausgabe, Betrag
+
+  var seed = 7;
+  function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  var order = DATA.slice();
+  for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = order[i]; order[i] = order[j]; order[j] = t; }
+  var byId = {}; order.forEach(function (it) { byId[it.id] = it; });
+
+  // state.a[id] = { art:{v,wrong:[]}, s0..s4:{v,wrong}, zahl, kat, betrag }
+  var state = { a: {}, pos: {}, unlocked: false, hide: false };
+  try { var s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) { state.a = s.a || {}; state.pos = s.pos || {}; state.unlocked = !!s.unlocked; state.hide = !!s.hide; } } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function A(id) { return state.a[id] || (state.a[id] = {}); }
+  function slot(id, k) { var a = A(id); return a[k] || (a[k] = { v: null, wrong: [] }); }
+
+  function parseAmount(str) {
+    if (str == null) return NaN;
+    var s = String(str).replace(/[€\s]/g, '').replace(/^[+−-]/, '');
+    if (!s) return NaN;
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    if (!/^\d+(\.\d{1,3})?$/.test(s)) return NaN;
+    return Math.round(parseFloat(s) * 1000) / 1000;
+  }
+  function eur(v) { return v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+  function truth(it, k) {
+    if (k === 'art') return it.art;
+    if (k === 'zahl') return it.zahl;
+    if (k === 'kat') return it.kat;
+    if (k.charAt(0) === 's') return it.s[+k.slice(1)] ? 'ja' : 'nein';
+  }
+  function solvedCount(it) {
+    var a = state.a[it.id] || {}, n = 0;
+    ['art', 's0', 's1', 's2', 's3', 's4', 'zahl', 'kat'].forEach(function (k) { if (a[k] && a[k].v === truth(it, k)) n++; });
+    if (a.betrag && a.betrag.ok) n++;
+    return n;
+  }
+  function isDone(it) { return solvedCount(it) === TOTAL; }
+  function wrongCount(it) {
+    var a = state.a[it.id] || {}, n = 0;
+    Object.keys(a).forEach(function (k) { n += (a[k].wrong || []).length; });
+    return n;
+  }
+
+  // ---------- Tisch ----------
+  var wrap = document.getElementById('deskwrap'), desk = document.getElementById('desk');
+  var els = {}, sizes = {}, zTop = 100, deskH = 1400;
+  order.forEach(function (it) {
+    var d = document.createElement('div');
+    d.className = 'item'; d.tabIndex = 0; d.setAttribute('role', 'button');
+    d.setAttribute('aria-label', 'Beleg von ' + it.name + ' öffnen');
+    d.innerHTML = '<div class="paper">' + it.html + '</div>';
+    d.dataset.id = it.id;
+    desk.appendChild(d); els[it.id] = d;
+  });
+  function measure() {
+    desk.style.width = W + 'px';
+    order.forEach(function (it) { var p = els[it.id].querySelector('.paper'); sizes[it.id] = { w: p.offsetWidth, h: p.offsetHeight }; });
+  }
+  function layout() {
+    var STEP = 20, cols = Math.ceil(W / STEP), sky = []; for (var c = 0; c < cols; c++) sky[c] = 30;
+    seed = 29; var pos = {};
+    order.forEach(function (it) {
+      var w = sizes[it.id].w, h = sizes[it.id].h, span = Math.ceil(w / STEP), best = null;
+      for (var c0 = 1; c0 + span < cols; c0++) {
+        var y = 0; for (var k = c0; k < c0 + span; k++) y = Math.max(y, sky[k]);
+        if (!best || y < best.y - 10) best = { c: c0, y: y };
+      }
+      var over = 30 + rnd() * 70, x = best.c * STEP + (rnd() - .5) * 30, top = Math.max(20, best.y - over);
+      pos[it.id] = { x: Math.round(x), y: Math.round(top), r: Math.round((rnd() - .5) * 90) / 10, z: 0 };
+      for (var k2 = best.c; k2 < best.c + span; k2++) sky[k2] = top + h + 10;
+    });
+    return pos;
+  }
+  var basePos = null, scale = .3;
+  function place() {
+    var maxB = 0;
+    order.forEach(function (it, n) {
+      var p = state.pos[it.id] || basePos[it.id], d = els[it.id];
+      d.style.left = p.x + 'px'; d.style.top = p.y + 'px'; d.style.transform = 'rotate(' + p.r + 'deg)';
+      d.style.zIndex = p.z || (n + 1);
+      if (p.z && p.z > zTop) zTop = p.z;
+      maxB = Math.max(maxB, p.y + sizes[it.id].h);
+    });
+    deskH = maxB + 60; desk.style.height = deskH + 'px';
+    scaleDesk();
+  }
+  function scaleDesk() {
+    scale = wrap.clientWidth / W;
+    desk.style.transform = 'scale(' + scale + ')';
+    wrap.style.height = Math.ceil(deskH * scale) + 'px';
+  }
+  function decorate() {
+    order.forEach(function (it) {
+      var d = els[it.id], done = isDone(it), n = solvedCount(it);
+      d.classList.toggle('done', done);
+      d.hidden = !!(state.hide && done);
+      var old = d.querySelector('.stamp'); if (old) old.remove();
+      if (done || n > 0) {
+        var st = document.createElement('span');
+        st.className = 'stamp' + (done ? '' : ' part');
+        st.textContent = done ? '✓ ' + ART[it.art] : n + ' / ' + TOTAL;
+        d.appendChild(st);
+      }
+    });
+  }
+  var drag = null;
+  desk.addEventListener('pointerdown', function (ev) {
+    var d = ev.target.closest('.item'); if (!d) return;
+    var id = d.dataset.id, p = state.pos[id] || Object.assign({}, basePos[id]);
+    drag = { id: id, el: d, sx: ev.clientX, sy: ev.clientY, ox: p.x, oy: p.y, r: p.r, moved: false, pid: ev.pointerId };
+    try { d.setPointerCapture(ev.pointerId); } catch (x) {}
+  });
+  desk.addEventListener('pointermove', function (ev) {
+    if (!drag || ev.pointerId !== drag.pid) return;
+    var dx = (ev.clientX - drag.sx) / scale, dy = (ev.clientY - drag.sy) / scale;
+    if (!drag.moved && Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) < 8) return;
+    if (!drag.moved) { drag.moved = true; zTop++; drag.el.style.zIndex = zTop; drag.el.classList.add('dragging'); }
+    var s = sizes[drag.id];
+    var nx = Math.max(-s.w * .5, Math.min(W - s.w * .5, drag.ox + dx)), ny = Math.max(0, Math.min(deskH - 120, drag.oy + dy));
+    drag.el.style.left = nx + 'px'; drag.el.style.top = ny + 'px'; drag.nx = nx; drag.ny = ny;
+  });
+  function endDrag(ev) {
+    if (!drag || ev.pointerId !== drag.pid) return;
+    var d = drag; drag = null; d.el.classList.remove('dragging');
+    if (d.moved) { state.pos[d.id] = { x: Math.round(d.nx), y: Math.round(d.ny), r: d.r, z: zTop }; save(); }
+    else if (ev.type === 'pointerup') openItem(order.indexOf(byId[d.id]));
+  }
+  desk.addEventListener('pointerup', endDrag);
+  desk.addEventListener('pointercancel', endDrag);
+  desk.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    var d = ev.target.closest('.item'); if (!d) return; ev.preventDefault();
+    openItem(order.indexOf(byId[d.dataset.id]));
+  });
+
+  function renderProgress() {
+    var n = order.filter(isDone).length;
+    document.getElementById('progLbl').textContent = n + ' von ' + order.length + ' Belegen ausgewertet';
+    document.getElementById('progBar').style.width = (n / order.length * 100) + '%';
+  }
+  function renderAll() { decorate(); renderProgress(); }
+
+  // ---------- Beleganalyse ----------
+  var dlg = document.getElementById('dlg'), viewer = document.getElementById('viewer'), form = document.getElementById('form');
+  var cur = 0;
+  function okMsg() { return OK_TXT[Math.floor(Math.random() * OK_TXT.length)]; }
+  function optBtn(k, val, label, it) {
+    var sl = (state.a[it.id] || {})[k], tr = truth(it, k), solved = sl && sl.v === tr;
+    var cls = 'opt';
+    if (sl && sl.v === val && val === tr) cls += ' ok';
+    else if (sl && sl.wrong.indexOf(val) >= 0) cls += ' bad';
+    return '<button type="button" class="' + cls + '" data-k="' + k + '" data-v="' + val + '"' + (solved ? ' disabled' : '') + '>' + label + '</button>';
+  }
+  function fbFor(it, k) {
+    var sl = (state.a[it.id] || {})[k]; if (!sl || sl.v == null) return '';
+    var tr = truth(it, k);
+    if (sl.v === tr) {
+      var note = '';
+      if (k.charAt(0) === 's' && it.notes && it.notes[k.slice(1)]) note = ' ' + it.notes[k.slice(1)];
+      if (k === 'art') note = ' Das ist ein' + (it.art === 'kb' || it.art === 'ka' || it.art === 'vn' ? ' ' : 'e ') + ART[it.art] + '.';
+      return '<div class="fb ok">' + (sl.msg || 'Richtig!') + note + '</div>';
+    }
+    var tip = k === 'art' ? ART_TIP[it.art] : k === 'zahl' ? ZAHL_TIP : k === 'kat' ? 'Kommt Geld auf das Konto der Familie oder geht Geld weg?' : STMT[+k.slice(1)].tip;
+    return '<div class="fb bad">Noch nicht. ' + tip + '</div>';
+  }
+  function status(it, keys) {
+    var a = state.a[it.id] || {}, ok = keys.filter(function (k) { return k === 'betrag' ? (a.betrag && a.betrag.ok) : (a[k] && a[k].v === truth(it, k)); }).length;
+    return '<span class="st' + (ok === keys.length ? ' ok' : '') + '">' + (ok === keys.length ? '✓ erledigt' : ok + ' / ' + keys.length) + '</span>';
+  }
+  function renderForm() {
+    var it = order[cur], a = state.a[it.id] || {}, h = '';
+    if (isDone(it)) h += '<div class="done-box"><span>✓ Beleg vollständig ausgewertet</span><button type="button" class="primary" id="nextOpen">Nächster Beleg ›</button></div>';
+    h += '<div class="q"><div class="qh"><span>1. Um welche Belegart handelt es sich?</span>' + status(it, ['art']) + '</div><div class="grid2">';
+    ART_ORDER.forEach(function (k) { h += optBtn('art', k, ART[k], it); });
+    h += '</div><div class="fbslot">' + fbFor(it, 'art') + '</div></div>';
+
+    h += '<div class="q"><div class="qh"><span>2. Was trifft auf diesen Beleg zu?</span>' + status(it, ['s0', 's1', 's2', 's3', 's4']) + '</div><div class="group">';
+    STMT.forEach(function (st, i) {
+      var k = 's' + i;
+      h += '<div class="stmt"><span class="txt">' + st.t + '</span><span class="yn">' + optBtn(k, 'ja', 'Ja', it) + optBtn(k, 'nein', 'Nein', it) + '</span><div class="fb-wrap" style="grid-column:1/-1">' + fbFor(it, k) + '</div></div>';
+    });
+    h += '</div></div>';
+
+    h += '<div class="q"><div class="qh"><span>3. Wie wurde bzw. wird bezahlt?</span>' + status(it, ['zahl']) + '</div><div class="grid3">';
+    ['bar', 'karte', 'ueb'].forEach(function (k) { h += optBtn('zahl', k, ZAHL[k], it); });
+    h += '</div>' + fbFor(it, 'zahl') + '</div>';
+
+    var b = a.betrag || {};
+    h += '<div class="q"><div class="qh"><span>4. Für den Haushaltsplan</span>' + status(it, ['kat', 'betrag']) + '</div><div class="grid2">' +
+      optBtn('kat', 'ein', 'Einnahme', it) + optBtn('kat', 'aus', 'Ausgabe', it) + '</div>' + fbFor(it, 'kat') +
+      '<div class="betragcard"><label for="betrag">Welcher Betrag zählt für den Haushaltsplan im Oktober?</label>' +
+      '<div class="betrag"><input type="text" id="betrag" inputmode="decimal" autocomplete="off" placeholder="0,00" value="' + (b.v ? String(b.v).replace(/"/g, '') : '') + '"' + (b.ok ? ' class="ok" disabled' : '') + '><span>€</span>' +
+      (b.ok ? '' : '<button type="button" class="opt" id="checkBetrag">Prüfen</button>') + '</div>' +
+      '<div id="betragFb">' + (b.fb ? '<div class="fb ' + (b.ok ? 'ok' : (b.tip ? 'tip' : 'bad')) + '">' + b.fb + '</div>' : '') + '</div></div></div>';
+    h += '<button type="button" class="secondary" id="clearBtn">Antworten zu diesem Beleg zurücksetzen</button>';
+    form.innerHTML = h;
+  }
+  form.addEventListener('click', function (ev) {
+    var it = order[cur];
+    var btn = ev.target.closest('button'); if (!btn) return;
+    if (btn.id === 'nextOpen') { openNextOpen(); return; }
+    if (btn.id === 'clearBtn') { delete state.a[it.id]; save(); renderForm(); renderAll(); return; }
+    if (btn.id === 'checkBetrag') { checkBetrag(); return; }
+    var k = btn.dataset.k, v = btn.dataset.v; if (!k) return;
+    var sl = slot(it.id, k);
+    sl.v = v;
+    if (v !== truth(it, k)) { if (sl.wrong.indexOf(v) < 0) sl.wrong.push(v); }
+    else sl.msg = okMsg();
+    save();
+    var y = form.scrollTop;
+    renderForm(); renderAll(); form.scrollTop = y;
+    if (v !== truth(it, k)) { var nb = form.querySelector('[data-k="' + k + '"][data-v="' + v + '"]'); if (nb) nb.classList.add('shake'); }
+  });
+  form.addEventListener('keydown', function (ev) { if (ev.target.id === 'betrag' && ev.key === 'Enter') { ev.preventDefault(); checkBetrag(); } });
+  function checkBetrag() {
+    var it = order[cur], inp = document.getElementById('betrag'), raw = inp.value.trim(), b = A(it.id).betrag || (A(it.id).betrag = { wrong: [] });
+    var n = parseAmount(raw);
+    b.v = raw;
+    if (isNaN(n)) { b.ok = false; b.tip = true; b.fb = 'Gebt den Betrag als Zahl ein, zum Beispiel 85,00.'; }
+    else if (Math.abs(n - it.betrag) < 0.005) { b.ok = true; b.tip = false; b.fb = okMsg() + ' ' + eur(it.betrag) + ' ' + (it.kat === 'ein' ? 'kommen herein.' : 'gehen als Ausgabe in den Haushaltsplan.'); }
+    else {
+      b.ok = false; b.tip = false; b.wrong.push(raw);
+      var trap = (it.traps || []).filter(function (t) { return Math.abs(t[0] - n) < 0.005; })[0];
+      b.fb = trap ? trap[1] : 'Das stimmt noch nicht. Welcher Betrag geht wirklich vom Geld der Familie weg bzw. kommt herein?';
+      if (trap) b.tip = true;
+    }
+    save(); var y = form.scrollTop; renderForm(); renderAll(); form.scrollTop = y;
+    if (!b.ok) { var i2 = document.getElementById('betrag'); if (i2) { i2.classList.add('shake'); i2.focus(); } }
+  }
+  function openNextOpen() {
+    for (var s = 1; s <= order.length; s++) { var idx = (cur + s) % order.length; if (!isDone(order[idx])) { openItem(idx); return; } }
+    dlg.close();
+  }
+  function openItem(idx) {
+    cur = (idx + order.length) % order.length;
+    var it = order[cur];
+    document.getElementById('dlgT').textContent = 'Beleg ' + (cur + 1) + ' von ' + order.length;
+    viewer.innerHTML = '<div class="sheet">' + it.html + '</div>';
+    renderForm(); form.scrollTop = 0;
+    if (!dlg.open) { try { dlg.showModal(); } catch (x) { dlg.setAttribute('open', ''); } }
+    requestAnimationFrame(function () { fitSheet(); form.scrollTop = 0; viewer.scrollTop = 0; });
+  }
+  function fitSheet() {
+    var sh = viewer.querySelector('.sheet'); if (!sh) return;
+    sh.style.transform = 'none'; sh.style.marginLeft = '0'; sh.style.marginBottom = '0';
+    var w = sh.offsetWidth, h = sh.offsetHeight, cw = viewer.clientWidth - 32;
+    var s = Math.min(1.3, cw / w);
+    sh.style.transform = 'scale(' + s + ')';
+    sh.style.marginLeft = Math.max(0, (cw - w * s) / 2) + 'px';
+    sh.style.marginBottom = (h * s - h) + 'px';
+  }
+  document.getElementById('prevBtn').addEventListener('click', function () { openItem(cur - 1); });
+  document.getElementById('nextBtn').addEventListener('click', function () { openItem(cur + 1); });
+  document.getElementById('closeBtn').addEventListener('click', function () { dlg.close(); });
+
+  // ---------- Werkzeuge ----------
+  var hideBtn = document.getElementById('hideDone');
+  hideBtn.setAttribute('aria-pressed', String(state.hide));
+  hideBtn.addEventListener('click', function () { state.hide = !state.hide; hideBtn.setAttribute('aria-pressed', String(state.hide)); save(); decorate(); });
+  document.getElementById('tidy').addEventListener('click', function () { state.pos = {}; zTop = 100; save(); place(); });
+  window.addEventListener('resize', function () { scaleDesk(); if (dlg.open) fitSheet(); });
+  document.getElementById('print').innerHTML = DATA.map(function (it) { return it.html; }).join('');
+  document.getElementById('printBtn').addEventListener('click', function () { window.print(); });
+
+  // ---------- Lehrkraft ----------
+  var tdlg = document.getElementById('teacher');
+  function renderTeacher() {
+    document.getElementById('tLocked').hidden = state.unlocked;
+    document.getElementById('tOpen').hidden = !state.unlocked;
+    if (!state.unlocked) return;
+    var h = '<table class="ttab"><tr><th>Beleg</th><th>Belegart</th><th>Fortschritt</th><th class="n">Fehlversuche</th></tr>';
+    DATA.forEach(function (it) {
+      h += '<tr><td>' + it.name + '</td><td>' + ART[it.art] + '</td><td>' + (isDone(it) ? '✓ fertig' : solvedCount(it) + ' / ' + TOTAL) + '</td><td class="n">' + wrongCount(it) + '</td></tr>';
+    });
+    document.getElementById('tTable').innerHTML = h + '</table>';
+  }
+  document.getElementById('openTeacher').addEventListener('click', function () { renderTeacher(); try { tdlg.showModal(); } catch (x) { tdlg.setAttribute('open', ''); } });
+  document.getElementById('tClose').addEventListener('click', function () { tdlg.close(); });
+  document.getElementById('tUnlock').addEventListener('click', function () {
+    if (document.getElementById('tCode').value.trim() === CODE) { state.unlocked = true; save(); document.getElementById('tErr').textContent = ''; renderTeacher(); }
+    else document.getElementById('tErr').textContent = 'Der Code stimmt nicht.';
+  });
+  var resetArmed = false;
+  document.getElementById('resetBtn').addEventListener('click', function (e) {
+    if (!resetArmed) { resetArmed = true; e.target.textContent = 'Wirklich alles löschen? Nochmal tippen'; return; }
+    state.a = {}; state.pos = {}; state.hide = false; save(); resetArmed = false;
+    e.target.textContent = 'Alle Eingaben auf diesem Gerät löschen'; hideBtn.setAttribute('aria-pressed', 'false'); renderTeacher(); place(); renderAll();
+  });
+
+  function boot() { measure(); basePos = layout(); place(); renderAll(); }
+  boot();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(); basePos = layout(); place(); });
+})();
+</script>
+</body>
+</html>
