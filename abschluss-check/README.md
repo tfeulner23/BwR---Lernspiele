@@ -1,4 +1,4 @@
-# Abschluss-Check · BwR 7 (II)
+# Abschluss-Check · BwR 8 (II)
 
 Digitale Lernzielkontrolle zu Abschlussbuchungen, ausgelegt auf etwa 10–15 Minuten selbstständige Bearbeitung. Keine automatische Zeitbegrenzung, damit eine begonnene Aufgabe als Hausaufgabe fortgesetzt werden kann.
 
@@ -61,7 +61,7 @@ Serverseitige Bewertung; Entwürfe und letzte Abgaben werden getrennt gespeicher
 
 ## Fachliche Grundlage
 
-LehrplanPLUS Bayern, Realschule, BwR 7 (II), Lernbereich 5 „Strukturierung der Geschäftsbuchführung“, bereitgestellter Export vom 06.10.2026, PDF-Seite 1. Vorgegebener Kontenplan nach dem IKR / LehrplanPLUS / ISB, PDF-Seite 1. Die von der Lehrkraft am 16.10.2026 bereitgestellten Arbeitsheftseiten 36–37 (Aufgabe 1/14, Verlag/Ausgabe unbekannt) dienen ausschließlich als lokale Referenz. Keine Arbeitsheftfotos wurden veröffentlicht.
+LehrplanPLUS Bayern, Realschule, BwR 8 (II), Lernbereich 1 „Vertiefte Strukturierung der Geschäftsbuchführung“ (Jahresabschluss: 8010 SBK, 8020 GUV), bereitgestellter Export vom 06.10.2026, PDF-Seite 1. Vorgegebener Kontenplan nach dem IKR / LehrplanPLUS / ISB, PDF-Seite 1. Die von der Lehrkraft am 16.10.2026 bereitgestellten Arbeitsheftseiten 36–37 (Aufgabe 1/14, Verlag/Ausgabe unbekannt) dienen ausschließlich als lokale Referenz. Keine Arbeitsheftfotos wurden veröffentlicht.
 
 Die Werte sind eigens erstellte Aufgabendaten und werden nicht als neue verbindliche Courtline-Stammdaten übernommen. Keine Bestandsveränderungen von Erzeugnissen, Privatvorgänge, Steuern oder weiteren Abschlusskorrekturen innerhalb dieses vereinfachten Falls. Courtline verkauft ausschließlich eigene Fertigerzeugnisse.
 
