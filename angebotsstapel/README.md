@@ -1,6 +1,6 @@
 # Angebotsstapel – Courtline
 
-Sechs vollständige fiktive Angebote für Carbon-Gewebe an Courtline e.K. öffnen und je drei wechselnde Angaben entnehmen. Geplante Bearbeitungszeit: etwa 8–10 Minuten, abhängig vom Lesetempo; keine Rechenaufgaben.
+Fünf vollständige fiktive Angebote für Carbon-Gewebe an Courtline e.K. öffnen und je drei wechselnde Angaben entnehmen. Geplante Bearbeitungszeit: etwa 7–9 Minuten, abhängig vom Lesetempo; keine Rechenaufgaben.
 
 ## Bedienung
 
@@ -22,7 +22,6 @@ BwR 8 (II), bayerische Realschule, Lernbereich 2 „Beschaffung und Einsatz von 
 | Deutsche Carbonwerke AG | Skontofrist 8 Tage | Zahlungsziel 30 Tage | Transportkosten 250,00 € |
 | MainCarbon GmbH | frei Haus | Verkäufer trägt Transportkosten | Verpackung 25,00 € |
 | Mittelfranken Fasertechnik GmbH | Rabatt 5,00 % | Transportversicherung 35,00 € | Transportkosten 120,00 € |
-| Verbundstoff-Kontor GmbH | Zahlungsziel 14 Tage | Skonto 2,50 % | Skontofrist 5 Tage |
 | CarbonPartner GmbH | Einzelpreis 88,50 € / m² | Käufer trägt Transportkosten | Rabatt 0,00 % |
 
-Die sechs Fälle sind voneinander unabhängige Übungsangebote. Preise und Lieferanten sind fiktive didaktische Beispieldaten, keine Ergänzung verbindlicher Unternehmensstammdaten. Alle Angebote enthalten Menge, Beschaffenheit, Einzelpreis, Rabatt, Transportbedingung, Bezugskosten, Lieferzeit, Zahlungsziel, Skontosatz, Skontofrist und Gültigkeit. Geldbeträge sind netto ausgewiesen; es wird keine Umsatzsteuerberechnung verlangt. Keine externen Bibliotheken, Schriftarten oder Bilder. Die Gestaltung des Schreibtischs greift die gewünschte Belegstapel-Idee auf; Programm und Inhalte wurden hierfür neu erstellt.
+Die fünf Fälle sind voneinander unabhängige Übungsangebote. Preise und Lieferanten sind fiktive didaktische Beispieldaten, keine Ergänzung verbindlicher Unternehmensstammdaten. Alle Angebote enthalten Menge, Beschaffenheit, Einzelpreis, Rabatt, Transportbedingung, Bezugskosten, Lieferzeit, Zahlungsziel, Skontosatz, Skontofrist und Gültigkeit. Geldbeträge sind netto ausgewiesen; es wird keine Umsatzsteuerberechnung verlangt. Keine externen Bibliotheken, Schriftarten oder Bilder. Die Gestaltung des Schreibtischs greift die gewünschte Belegstapel-Idee auf; Programm und Inhalte wurden hierfür neu erstellt.
