@@ -8,6 +8,6 @@ Digitale Übungen für den BwR-Unterricht an der bayerischen Realschule.
 
 - [Angebotsstapel: Courtline](https://tfeulner23.github.io/BwR---Lernspiele/angebotsstapel/) – fünf vollständige Angebote auswerten, 15 Angaben zu Liefer- und Zahlungsbedingungen finden. Mit Rückmeldung, markierten Fundstellen und Speicherung auf dem jeweiligen Gerät.
 
-- [Werkstoff-Check: Courtline](https://tfeulner23.github.io/BwR---Lernspiele/werkstoff-check/) – vier Werkstoffarten als Dreiergruppen zuordnen und acht kurze Bezugskostenfälle lösen. Für das iPad, etwa 5–7 Minuten, mit Rückmeldung und Speicherung auf dem jeweiligen Gerät.
+- [Werkstoff-Check: Courtline](https://tfeulner23.github.io/BwR---Lernspiele/werkstoff-check/) – vier Werkstoffarten als Dreiergruppen zuordnen und vier Pflichtfälle zu Bezugskosten lösen; anschließend vier freiwillige Zusatzfälle. Für das iPad, etwa 5–7 Minuten, mit Rückmeldung und Speicherung auf dem jeweiligen Gerät.
 
 Alle Beispiele verwenden fiktive Unternehmens- und Familiendaten.
