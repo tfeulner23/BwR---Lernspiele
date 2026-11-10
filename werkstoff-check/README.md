@@ -7,7 +7,8 @@ Für die selbstständige Bearbeitung am iPad; geplante Dauer etwa 5–7 Minuten,
 ## Aufgaben
 
 1. Zwölf gemischte Kacheln zu vier Dreiergruppen ordnen: Werkstoffart, kurze Erklärung und konkrete Beispiele. Richtige Gruppen werden zusammengefasst; falsche Versuche lassen sich verbessern.
-2. Acht kurze Fälle zu Bezugskosten entscheiden, je zwei zu Rohstoffen, Fremdbauteilen, Hilfsstoffen und Betriebsstoffen. Die Kontenwahl wird geprüft und begründet. Keine Begrenzung der Versuche.
+2. Vier Pflichtfälle zu Bezugskosten entscheiden, je einer zu Rohstoffen, Fremdbauteilen, Hilfsstoffen und Betriebsstoffen. Erst wenn diese vier Fälle und alle vier Kachelgruppen richtig abgeschlossen sind, erscheint der Pflichtabschluss mit „Ich bin fertig“ und einer freiwilligen Zusatzrunde.
+3. Optional: vier weitere Fälle (je einer pro Werkstoffart) starten. Die Zusatzrunde ist vor dem vollständigen Pflichtabschluss gesperrt; nach „Ich bin fertig“ bleibt sie optional anwählbar. Die Kontenwahl wird geprüft und begründet, falsche Antworten können ohne Versuchsbegrenzung verbessert werden. Die Zeitangabe 5–7 Minuten bezieht sich auf den Pflichtteil.
 
 Alle Beispiele beziehen sich auf eigene Schlägerfertigung bei Courtline: Carbon-Gewebe/Carbonfasern, fertig zugekaufte Griffkappen/Handschlaufen, Lack/Klebstoff sowie Schmieröl/Maschinenreiniger. Fiktive didaktische Beispiele, keine Erweiterung bestätigter Unternehmensstammdaten.
 
@@ -18,7 +19,7 @@ Alle Beispiele beziehen sich auf eigene Schlägerfertigung bei Courtline: Carbon
 - 6021 BZKH: Bezugskosten für Hilfsstoffe
 - 6031 BZKB: Bezugskosten für Betriebsstoffe
 
-Fälle 1–8: BZKR, BZKF, BZKH, BZKB, BZKF, BZKR, BZKB, BZKH. Abschlussübersicht mit allen Begründungen und Zahl der beim ersten Versuch richtig bearbeiteten Fälle.
+Pflichtfälle 1–4: BZKR, BZKF, BZKH, BZKB. Zusatzfälle 1–4: BZKF, BZKR, BZKB, BZKH. Pflichtabschluss nach vier Fällen mit Begründungen und Erstversuch-Auswertung; nach der Zusatzrunde werden alle acht Fälle angezeigt. Bestehende Spielstände bleiben beim Update erhalten.
 
 ## Technik und Speicherung
 
