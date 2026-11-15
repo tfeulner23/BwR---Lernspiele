@@ -10,4 +10,6 @@ Digitale Übungen für den BwR-Unterricht an der bayerischen Realschule.
 
 - [Werkstoff-Check: Courtline](https://tfeulner23.github.io/BwR---Lernspiele/werkstoff-check/) – vier Werkstoffarten als Dreiergruppen zuordnen und vier Pflichtfälle zu Bezugskosten lösen; anschließend vier freiwillige Zusatzfälle. Für das iPad, etwa 5–7 Minuten, mit Rückmeldung und Speicherung auf dem jeweiligen Gerät.
 
+- [Rücksendung oder Preisnachlass?](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-zuordnung/) – acht Aussagen per Drag-and-drop oder Antippen zuordnen. Freie Reihenfolge innerhalb der Spalten, Kontrolle nach vollständiger Zuordnung, Rückmeldung und Speicherung auf dem jeweiligen Gerät.
+
 Alle Beispiele verwenden fiktive Unternehmens- und Familiendaten.
