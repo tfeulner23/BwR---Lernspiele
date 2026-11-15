@@ -12,4 +12,6 @@ Digitale Übungen für den BwR-Unterricht an der bayerischen Realschule.
 
 - [Rücksendung oder Preisnachlass?](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-zuordnung/) – acht Aussagen per Drag-and-drop oder Antippen zuordnen. Freie Reihenfolge innerhalb der Spalten, Kontrolle nach vollständiger Zuordnung, Rückmeldung und Speicherung auf dem jeweiligen Gerät.
 
+- [Sachmängel-Check: fünf QR-Stationen](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-check/) – Buchungssätze zu fünf Sachmängel-Gutschriften kontrollieren. Jeder Stationscode öffnet die passende Aufgabe, eine richtige Buchung gibt einen Lösungsbuchstaben frei.
+
 Alle Beispiele verwenden fiktive Unternehmens- und Familiendaten.
