@@ -2,16 +2,28 @@
 
 Digitale Übungen für den BwR-Unterricht an der bayerischen Realschule.
 
-- [Beleg-Detektiv: Belege und Bestandsbuchungen](https://tfeulner23.github.io/BwR---Lernspiele/)
-- [Abschluss-Check: Erfolgskonten, GuV und SBK](https://tfeulner23.github.io/BwR---Lernspiele/abschluss-check/) – Lernzielkontrolle mit persönlichem Schülerzugang, zentraler Speicherung und Lehrerübersicht nach Einrichtung des Lehrerzugangs.
-- [Belegstapel: Familie Arnold](https://tfeulner23.github.io/BwR---Lernspiele/belegstapel/) – zwölf Belege auswerten und Beträge für den Haushaltsplan bestimmen. Angepasste Unterrichtsvorlage aus [RSB Webapps](https://github.com/fbinder14/rsb-webapps); Fortschritt wird auf dem jeweiligen Gerät gespeichert.
+**[Alle Lernspiele öffnen](https://tfeulner23.github.io/BwR---Lernspiele/)**
 
-- [Angebotsstapel: Courtline](https://tfeulner23.github.io/BwR---Lernspiele/angebotsstapel/) – fünf vollständige Angebote auswerten, 15 Angaben zu Liefer- und Zahlungsbedingungen finden. Mit Rückmeldung, markierten Fundstellen und Speicherung auf dem jeweiligen Gerät.
+| Lernspiel | Klasse | Inhalt |
+| --- | --- | --- |
+| [Belegstapel](https://tfeulner23.github.io/BwR---Lernspiele/belegstapel/) | 7 (II) | Werte die Belege der Familie Arnold aus und ermittle die Beträge für den Haushaltsplan. |
+| [Abschluss-Check](https://tfeulner23.github.io/BwR---Lernspiele/abschluss-check/) | 8 (II) | Schließe Erfolgskonten, GuV und Bestandskonten ab. Anmeldung mit deinem persönlichen Zugangscode. |
+| [Angebotsstapel](https://tfeulner23.github.io/BwR---Lernspiele/angebotsstapel/) | 8 (II) | Untersuche fünf Angebote an Courtline und finde Angaben zu Preisen, Rabatten, Skonto und Lieferung. |
+| [Werkstoff-Check](https://tfeulner23.github.io/BwR---Lernspiele/werkstoff-check/) | 8 (II) | Ordne Werkstoffe zu und bestimme die passenden Bezugskostenkonten. Mit freiwilliger Zusatzrunde. |
+| [Leihverpackungen-Check](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/) | 8 (II) | Kontrolliere fünf Buchungssätze an den QR-Stationen. Richtige Lösungen geben dir die Buchstaben für das Lösungswort. |
+| [Rücksendung oder Preisnachlass?](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-zuordnung/) | 8 (II) | Ordne acht Aussagen zu: Wird die Ware zurückgeschickt oder bleibt sie im Unternehmen? |
+| [Sachmängel-Check](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-check/) | 8 (II) | Prüfe deine fünf Buchungssätze zu Sachmängel-Gutschriften und sammle die Lösungsbuchstaben. |
 
-- [Werkstoff-Check: Courtline](https://tfeulner23.github.io/BwR---Lernspiele/werkstoff-check/) – vier Werkstoffarten als Dreiergruppen zuordnen und vier Pflichtfälle zu Bezugskosten lösen; anschließend vier freiwillige Zusatzfälle. Für das iPad, etwa 5–7 Minuten, mit Rückmeldung und Speicherung auf dem jeweiligen Gerät.
+## Leihverpackungen-Check: die fünf QR-Stationen
 
-- [Rücksendung oder Preisnachlass?](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-zuordnung/) – acht Aussagen per Drag-and-drop oder Antippen zuordnen. Freie Reihenfolge innerhalb der Spalten, Kontrolle nach vollständiger Zuordnung, Rückmeldung und Speicherung auf dem jeweiligen Gerät.
+Der Check gehört zum Arbeitsblatt „Leihverpackungen zurückgeben“. Die Aufgaben werden zuerst auf dem Arbeitsblatt gelöst. Jede Station prüft den zugehörigen Buchungssatz und gibt bei einer richtigen Lösung einen Buchstaben frei.
 
-- [Sachmängel-Check: fünf QR-Stationen](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-check/) – Buchungssätze zu fünf Sachmängel-Gutschriften kontrollieren. Jeder Stationscode öffnet die passende Aufgabe, eine richtige Buchung gibt einen Lösungsbuchstaben frei.
+- [Station 1](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/#1)
+- [Station 2](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/#2)
+- [Station 3](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/#3)
+- [Station 4](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/#4)
+- [Station 5](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/#5)
 
-Alle Beispiele verwenden fiktive Unternehmens- und Familiendaten.
+Die Eingaben im Leihverpackungen- und Sachmängel-Check bleiben im Browser des jeweiligen Geräts gespeichert. Beim Abschluss-Check erfolgt nach Einrichtung des Lehrerzugangs eine zentrale Speicherung.
+
+Belegstapel: angepasste Unterrichtsvorlage aus [RSB Webapps](https://github.com/fbinder14/rsb-webapps). Alle Beispiele verwenden fiktive Unternehmens- und Familiendaten.
