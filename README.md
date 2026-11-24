@@ -13,7 +13,7 @@ Digitale Übungen für den BwR-Unterricht an der bayerischen Realschule.
 | [Leihverpackungen-Check](https://tfeulner23.github.io/BwR---Lernspiele/leihverpackungen-check/) | 8 (II) | Kontrolliere fünf Buchungssätze an den QR-Stationen. Richtige Lösungen geben dir die Buchstaben für das Lösungswort. |
 | [Rücksendung oder Preisnachlass?](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-zuordnung/) | 8 (II) | Ordne acht Aussagen zu: Wird die Ware zurückgeschickt oder bleibt sie im Unternehmen? |
 | [Sachmängel-Check](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-check/) | 8 (II) | Prüfe deine fünf Buchungssätze zu Sachmängel-Gutschriften und sammle die Lösungsbuchstaben. |
-| [Courtline Factory](https://tfeulner23.github.io/BwR---Lernspiele/courtline-factory/) | 8 (II) | Plane monatliche, wöchentliche oder tägliche Lieferungen. Vergleiche Produktion, Lagerplatz und Liefer-/Zusatzlagerkosten; erlebe zufällige Lieferstörungen (50 % je Durchlauf). Ohne Anmeldung; Spielstand lokal im Browser. |
+| [Courtline Factory](https://tfeulner23.github.io/BwR---Lernspiele/courtline-factory/) | 8 (II) | Plane monatliche, wöchentliche oder tägliche Lieferungen. Vergleiche Produktion, Lagerplatz und Liefer-/Zusatzlagerkosten; erlebe bei täglicher Lieferung einen möglichen Stau (50 % je Durchlauf). Ohne Anmeldung; Spielstand lokal im Browser. |
 
 ## Leihverpackungen-Check: die fünf QR-Stationen
 
