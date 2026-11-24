@@ -14,6 +14,8 @@ Digitale Übungen für den BwR-Unterricht an der bayerischen Realschule.
 | [Rücksendung oder Preisnachlass?](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-zuordnung/) | 8 (II) | Ordne acht Aussagen zu: Wird die Ware zurückgeschickt oder bleibt sie im Unternehmen? |
 | [Sachmängel-Check](https://tfeulner23.github.io/BwR---Lernspiele/sachmaengel-check/) | 8 (II) | Prüfe deine fünf Buchungssätze zu Sachmängel-Gutschriften und sammle die Lösungsbuchstaben. |
 
+| [Courtline Factory](https://tfeulner23.github.io/BwR---Lernspiele/courtline-factory/) | 8 (II) | Vergleiche Vorratsbeschaffung und Just-in-Time, teste einen Sicherheitsbestand und beurteile drei Beschaffungsfälle. Ohne Anmeldung; Spielstand lokal im Browser. |
+
 ## Leihverpackungen-Check: die fünf QR-Stationen
 
 Der Check gehört zum Arbeitsblatt „Leihverpackungen zurückgeben“. Die Aufgaben werden zuerst auf dem Arbeitsblatt gelöst. Jede Station prüft den zugehörigen Buchungssatz und gibt bei einer richtigen Lösung einen Buchstaben frei.
